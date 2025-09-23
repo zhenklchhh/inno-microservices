@@ -1,6 +1,6 @@
 package com.innowise.innomicroservices.repository;
 
-import com.innowise.innomicroservices.entity.User;
+import com.innowise.innomicroservices.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;

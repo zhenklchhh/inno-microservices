@@ -1,0 +1,10 @@
+databaseChangeLog:
+  - changeSet:
+      id: 003-alter-card-expiration-date
+      author: zhenya
+      changes:
+        - sql:
+            sql: |
+              ALTER TABLE card_info
+              ALTER COLUMN expiration_date TYPE DATE
+              USING to_date(expiration_date, 'MM/YY');
