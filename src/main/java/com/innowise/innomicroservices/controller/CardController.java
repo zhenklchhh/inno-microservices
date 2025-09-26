@@ -3,7 +3,6 @@ package com.innowise.innomicroservices.controller;
 import com.innowise.innomicroservices.dto.CardResponseDto;
 import com.innowise.innomicroservices.dto.CreateCardRequestDto;
 import com.innowise.innomicroservices.dto.UpdateCardRequestDto;
-import com.innowise.innomicroservices.dto.UpdateUserRequestDto;
 import com.innowise.innomicroservices.service.CardService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
