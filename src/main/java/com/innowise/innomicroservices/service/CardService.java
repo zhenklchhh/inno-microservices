@@ -4,9 +4,12 @@ import com.innowise.innomicroservices.dto.CardResponseDto;
 import com.innowise.innomicroservices.dto.CreateCardRequestDto;
 import com.innowise.innomicroservices.dto.UpdateCardRequestDto;
 import com.innowise.innomicroservices.exception.CardNotFoundException;
+import com.innowise.innomicroservices.exception.UserNotFoundException;
 import com.innowise.innomicroservices.mapper.CardMapper;
 import com.innowise.innomicroservices.model.Card;
+import com.innowise.innomicroservices.model.User;
 import com.innowise.innomicroservices.repository.CardRepository;
+import com.innowise.innomicroservices.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,16 +23,21 @@ import java.util.List;
 public class CardService {
     private final CardRepository cardRepository;
     private final CardMapper cardMapper;
+    private final UserRepository userRepository;
 
     @Autowired
-    public CardService(CardRepository cardRepository, CardMapper cardMapper) {
+    public CardService(CardRepository cardRepository, CardMapper cardMapper, UserRepository userRepository) {
         this.cardRepository = cardRepository;
         this.cardMapper = cardMapper;
+        this.userRepository = userRepository;
     }
 
     @Transactional
     public CardResponseDto createCard(CreateCardRequestDto createCardRequestDto) {
+        User user = userRepository.findById(createCardRequestDto.userId())
+                .orElseThrow(() -> new UserNotFoundException("User with id " + createCardRequestDto.userId() + " not found"));
         Card card = cardMapper.toEntity(createCardRequestDto);
+        card.setUser(user);
         Card savedCard = cardRepository.save(card);
         return cardMapper.toResponseDto(savedCard);
     }
@@ -68,6 +76,9 @@ public class CardService {
 
     @Transactional
     public void deleteCard(Long cardId) {
+        if (!cardRepository.existsById(cardId)) {
+            throw new CardNotFoundException("Card not found with id " + cardId);
+        }
         cardRepository.deleteById(cardId);
     }
 }
