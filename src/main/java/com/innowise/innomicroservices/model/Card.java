@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.util.UUID;
 
 /**
  * @author Evgeniy Zaleshchenok
@@ -15,8 +16,8 @@ import java.time.LocalDate;
 @Setter
 public class Card {
     @Id
-    @GeneratedValue(strategy= GenerationType.IDENTITY)
-    private long id;
+    @GeneratedValue(strategy= GenerationType.UUID)
+    private UUID id;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="user_id")
     private User user;
