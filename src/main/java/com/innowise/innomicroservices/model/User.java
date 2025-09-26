@@ -7,7 +7,6 @@ import lombok.Setter;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 /**
  * @author Evgeniy Zaleshchenok
@@ -18,8 +17,8 @@ import java.util.UUID;
 @Setter
 public class User {
     @Id
-    @GeneratedValue(strategy=GenerationType.UUID)
-    private UUID id;
+    @GeneratedValue(strategy=GenerationType.IDENTITY)
+    private long id;
     private String name;
     private String surname;
     private LocalDate birthDate;
