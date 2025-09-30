@@ -1,8 +1,6 @@
 package com.innowise.innomicroservices.controller;
 
-import com.innowise.innomicroservices.dto.CreateUserRequestDto;
-import com.innowise.innomicroservices.dto.UpdateUserRequestDto;
-import com.innowise.innomicroservices.dto.UserResponseDto;
+import com.innowise.innomicroservices.dto.UserDTO;
 import com.innowise.innomicroservices.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -25,32 +23,38 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<UserResponseDto> createUser(@RequestBody CreateUserRequestDto createUserRequestDto) {
-        UserResponseDto userResponseDto = userService.createUser(createUserRequestDto);
+    public ResponseEntity<UserDTO> createUser(@RequestBody UserDTO createUserRequestDTO) {
+        UserDTO userResponseDto = userService.createUser(createUserRequestDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(userResponseDto);
     }
 
+    @GetMapping
+    public ResponseEntity<List<UserDTO>> getAllUsers() {
+        List<UserDTO> users = userService.getAllUsers();
+        return ResponseEntity.status(HttpStatus.OK).body(users);
+    }
+
     @GetMapping("/{id}")
-    public ResponseEntity<UserResponseDto> getUser(@PathVariable Long id) {
-        UserResponseDto userResponseDto = userService.getUserById(id);
+    public ResponseEntity<UserDTO> getUser(@PathVariable Long id) {
+        UserDTO userResponseDto = userService.getUserById(id);
         return ResponseEntity.ok(userResponseDto);
     }
 
     @GetMapping("/batch")
-    public ResponseEntity<List<UserResponseDto>> getUsersById(@RequestParam List<Long> ids) {
-        List<UserResponseDto> users = userService.getUsersByIds(ids);
+    public ResponseEntity<List<UserDTO>> getUsersById(@RequestParam List<Long> ids) {
+        List<UserDTO> users = userService.getUsersByIds(ids);
         return ResponseEntity.ok(users);
     }
 
     @GetMapping("/search")
-    public ResponseEntity<UserResponseDto> getUserByEmail(@RequestParam String email) {
-        UserResponseDto userResponseDto = userService.getUserByEmail(email);
+    public ResponseEntity<UserDTO> getUserByEmail(@RequestParam String email) {
+        UserDTO userResponseDto = userService.getUserByEmail(email);
         return ResponseEntity.ok(userResponseDto);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<UserResponseDto> updateUser(@PathVariable Long id, @RequestBody UpdateUserRequestDto updateUserRequestDto) {
-        UserResponseDto userResponseDto = userService.updateUser(id, updateUserRequestDto);
+    public ResponseEntity<UserDTO> updateUser(@PathVariable Long id, @RequestBody UserDTO updateUserRequestDto) {
+        UserDTO userResponseDto = userService.updateUser(id, updateUserRequestDto);
         return ResponseEntity.ok(userResponseDto);
     }
 
