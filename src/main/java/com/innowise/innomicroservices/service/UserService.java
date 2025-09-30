@@ -1,13 +1,15 @@
 package com.innowise.innomicroservices.service;
 
-import com.innowise.innomicroservices.dto.CreateUserRequestDto;
-import com.innowise.innomicroservices.dto.UpdateUserRequestDto;
-import com.innowise.innomicroservices.dto.UserResponseDto;
+import com.innowise.innomicroservices.dto.UserDTO;
 import com.innowise.innomicroservices.exception.UserNotFoundException;
 import com.innowise.innomicroservices.mapper.UserMapper;
 import com.innowise.innomicroservices.model.User;
 import com.innowise.innomicroservices.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,43 +22,56 @@ import java.util.List;
 public class UserService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
+    private final CacheManager cacheManager;
 
     @Autowired
-    public UserService(UserRepository userRepository, UserMapper userMapper) {
+    public UserService(UserRepository userRepository, UserMapper userMapper, CacheManager cacheManager) {
         this.userRepository = userRepository;
         this.userMapper = userMapper;
+        this.cacheManager = cacheManager;
     }
 
     @Transactional
-    public UserResponseDto createUser(CreateUserRequestDto createUserRequestDto) {
+    public UserDTO createUser(UserDTO createUserRequestDto) {
         User user = userMapper.toEntity(createUserRequestDto);
         User savedUser = userRepository.save(user);
         return userMapper.toResponseDto(savedUser);
     }
 
     @Transactional(readOnly = true)
-    public UserResponseDto getUserById(Long id) {
+    @Cacheable(value = "users", key = "#id")
+    public UserDTO getUserById(Long id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("User not found with id: " + id));
         return userMapper.toResponseDto(user);
     }
 
+    @Transactional
+    public List<UserDTO> getAllUsers() {
+        List<User> users = userRepository.findAll();
+        return users.stream()
+                .map(userMapper::toResponseDto)
+                .toList();
+    }
+
     @Transactional(readOnly = true)
-    public List<UserResponseDto> getUsersByIds(List<Long> ids) {
+    public List<UserDTO> getUsersByIds(List<Long> ids) {
         return userRepository.findUsersByIds(ids).stream()
                 .map(userMapper::toResponseDto)
                 .toList();
     }
 
     @Transactional(readOnly = true)
-    public UserResponseDto getUserByEmail(String email) {
+    @Cacheable(value = "users", key = "#email")
+    public UserDTO getUserByEmail(String email) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UserNotFoundException("User not found with email: " + email));
         return userMapper.toResponseDto(user);
     }
 
     @Transactional
-    public UserResponseDto updateUser(Long id, UpdateUserRequestDto updateUserRequestDto) {
+    @CachePut(value = "users", key = "#id")
+    public UserDTO updateUser(Long id, UserDTO updateUserRequestDto) {
         User userToUpdate = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("User not found with id: " + id));
 
@@ -77,6 +92,7 @@ public class UserService {
     }
 
     @Transactional
+    @CacheEvict(value = "users", key = "#id")
     public void deleteUser(Long id) {
         if (!userRepository.existsById(id)) {
             throw new RuntimeException("User not found with id: " + id);

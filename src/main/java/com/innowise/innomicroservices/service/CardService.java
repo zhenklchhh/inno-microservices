@@ -1,8 +1,6 @@
 package com.innowise.innomicroservices.service;
 
-import com.innowise.innomicroservices.dto.CardResponseDto;
-import com.innowise.innomicroservices.dto.CreateCardRequestDto;
-import com.innowise.innomicroservices.dto.UpdateCardRequestDto;
+import com.innowise.innomicroservices.dto.CardDTO;
 import com.innowise.innomicroservices.exception.CardNotFoundException;
 import com.innowise.innomicroservices.exception.UserNotFoundException;
 import com.innowise.innomicroservices.mapper.CardMapper;
@@ -33,9 +31,9 @@ public class CardService {
     }
 
     @Transactional
-    public CardResponseDto createCard(CreateCardRequestDto createCardRequestDto) {
-        User user = userRepository.findById(createCardRequestDto.userId())
-                .orElseThrow(() -> new UserNotFoundException("User with id " + createCardRequestDto.userId() + " not found"));
+    public CardDTO createCard(CardDTO createCardRequestDto) {
+        User user = userRepository.findById(createCardRequestDto.getUserId())
+                .orElseThrow(() -> new UserNotFoundException("User with id " + createCardRequestDto.getUserId() + " not found"));
         Card card = cardMapper.toEntity(createCardRequestDto);
         card.setUser(user);
         Card savedCard = cardRepository.save(card);
@@ -43,21 +41,29 @@ public class CardService {
     }
 
     @Transactional(readOnly = true)
-    public CardResponseDto getCard(Long cardId) {
+    public CardDTO getCard(Long cardId) {
         Card card = cardRepository.findById(cardId)
                 .orElseThrow(() -> new CardNotFoundException("Card not found with id " + cardId));
         return cardMapper.toResponseDto(card);
     }
 
+    @Transactional
+    public List<CardDTO> getAllCards() {
+        List<Card> cards = cardRepository.findAll();
+        return cards.stream()
+                .map(cardMapper::toResponseDto)
+                .toList();
+    }
+
     @Transactional(readOnly = true)
-    public List<CardResponseDto> getCardsByIds(List<Long> cardIds) {
+    public List<CardDTO> getCardsByIds(List<Long> cardIds) {
         return cardRepository.findCardsByIds(cardIds).stream()
                 .map(cardMapper::toResponseDto)
                 .toList();
     }
 
     @Transactional
-    public CardResponseDto updateCard(Long cardId, UpdateCardRequestDto updateCardRequestDto) {
+    public CardDTO updateCard(Long cardId, CardDTO updateCardRequestDto) {
         Card cardToUpdate = cardRepository.findById(cardId)
                 .orElseThrow(() -> new CardNotFoundException("Card not found with id " + cardId));
 

@@ -1,7 +1,6 @@
 package com.innowise.innomicroservices.mapper;
 
-import com.innowise.innomicroservices.dto.CreateUserRequestDto;
-import com.innowise.innomicroservices.dto.UserResponseDto;
+import com.innowise.innomicroservices.dto.UserDTO;
 import com.innowise.innomicroservices.model.User;
 import org.mapstruct.Mapper;
 
@@ -10,6 +9,6 @@ import org.mapstruct.Mapper;
  */
 @Mapper(componentModel = "spring")
 public interface UserMapper {
-    User toEntity(CreateUserRequestDto dto);
-    UserResponseDto toResponseDto(User entity);
+    User toEntity(UserDTO dto);
+    UserDTO toResponseDto(User entity);
 }
