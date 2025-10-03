@@ -1,7 +1,9 @@
 package com.innowise.innomicroservices.model;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
@@ -13,6 +15,8 @@ import java.time.LocalDate;
 @Table(name="card_info")
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class Card {
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)
@@ -25,4 +29,11 @@ public class Card {
     private String holder;
     @Column(name="expiration_date")
     private LocalDate expiryDate;
+
+    public Card(User user, String cardNumber, String holder, LocalDate expiryDate) {
+        this.user = user;
+        this.cardNumber = cardNumber;
+        this.holder = holder;
+        this.expiryDate = expiryDate;
+    }
 }
