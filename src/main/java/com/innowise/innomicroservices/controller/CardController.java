@@ -2,6 +2,7 @@ package com.innowise.innomicroservices.controller;
 
 import com.innowise.innomicroservices.dto.CardDto;
 import com.innowise.innomicroservices.service.CardService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,7 +24,7 @@ public class CardController {
     }
 
     @PostMapping
-    public ResponseEntity<CardDto> createCard(@RequestBody CardDto createCardRequestDto) {
+    public ResponseEntity<CardDto> createCard(@Valid @RequestBody CardDto createCardRequestDto) {
         CardDto cardResponseDto = cardService.createCard(createCardRequestDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(cardResponseDto);
     }
@@ -48,7 +49,7 @@ public class CardController {
 
     @PutMapping("/{id}")
     public ResponseEntity<CardDto> updateCard(@PathVariable Long id,
-                                              @RequestBody CardDto updateCardRequestDto) {
+                                              @Valid @RequestBody CardDto updateCardRequestDto) {
         CardDto cardResponseDto = cardService.updateCard(id, updateCardRequestDto);
         return ResponseEntity.ok(cardResponseDto);
     }

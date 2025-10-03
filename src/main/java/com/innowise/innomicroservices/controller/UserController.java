@@ -2,6 +2,7 @@ package com.innowise.innomicroservices.controller;
 
 import com.innowise.innomicroservices.dto.UserDto;
 import com.innowise.innomicroservices.service.UserService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,7 +24,7 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<UserDto> createUser(@RequestBody UserDto createUserRequestDTO) {
+    public ResponseEntity<UserDto> createUser(@Valid @RequestBody UserDto createUserRequestDTO) {
         UserDto userResponseDto = userService.createUser(createUserRequestDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(userResponseDto);
     }
@@ -53,7 +54,7 @@ public class UserController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<UserDto> updateUser(@PathVariable Long id, @RequestBody UserDto updateUserRequestDto) {
+    public ResponseEntity<UserDto> updateUser(@PathVariable Long id,@Valid @RequestBody UserDto updateUserRequestDto) {
         UserDto userResponseDto = userService.updateUser(id, updateUserRequestDto);
         return ResponseEntity.ok(userResponseDto);
     }
