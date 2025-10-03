@@ -1,6 +1,6 @@
 package com.innowise.innomicroservices.controller;
 
-import com.innowise.innomicroservices.dto.CardDTO;
+import com.innowise.innomicroservices.dto.CardDto;
 import com.innowise.innomicroservices.service.CardService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -23,33 +23,33 @@ public class CardController {
     }
 
     @PostMapping
-    public ResponseEntity<CardDTO> createCard(@RequestBody CardDTO createCardRequestDto) {
-        CardDTO cardResponseDto = cardService.createCard(createCardRequestDto);
+    public ResponseEntity<CardDto> createCard(@RequestBody CardDto createCardRequestDto) {
+        CardDto cardResponseDto = cardService.createCard(createCardRequestDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(cardResponseDto);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<CardDTO> getCardById(@PathVariable Long id) {
-        CardDTO cardResponseDto = cardService.getCard(id);
+    public ResponseEntity<CardDto> getCardById(@PathVariable Long id) {
+        CardDto cardResponseDto = cardService.getCard(id);
         return ResponseEntity.ok(cardResponseDto);
     }
 
     @GetMapping
-    public ResponseEntity<List<CardDTO>> getAllCards() {
-        List<CardDTO> cardResponseDto = cardService.getAllCards();
+    public ResponseEntity<List<CardDto>> getAllCards() {
+        List<CardDto> cardResponseDto = cardService.getAllCards();
         return ResponseEntity.ok(cardResponseDto);
     }
 
     @GetMapping("/batch")
-    public ResponseEntity<List<CardDTO>> getAllCards(@RequestParam List<Long> ids) {
-        List<CardDTO> cardResponseDtos = cardService.getCardsByIds(ids);
+    public ResponseEntity<List<CardDto>> getAllCards(@RequestParam List<Long> ids) {
+        List<CardDto> cardResponseDtos = cardService.getCardsByIds(ids);
         return ResponseEntity.ok(cardResponseDtos);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<CardDTO> updateCard(@PathVariable Long id,
-                                                      @RequestBody CardDTO updateCardRequestDto) {
-        CardDTO cardResponseDto = cardService.updateCard(id, updateCardRequestDto);
+    public ResponseEntity<CardDto> updateCard(@PathVariable Long id,
+                                              @RequestBody CardDto updateCardRequestDto) {
+        CardDto cardResponseDto = cardService.updateCard(id, updateCardRequestDto);
         return ResponseEntity.ok(cardResponseDto);
     }
 
