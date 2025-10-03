@@ -6,8 +6,8 @@ import org.springframework.cache.annotation.EnableCaching;
 
 @SpringBootApplication
 @EnableCaching
-public class InnoMicroservicesApplication {
+public class UserServiceApplication {
     public static void main(String[] args) {
-        SpringApplication.run(InnoMicroservicesApplication.class, args);
+        SpringApplication.run(UserServiceApplication.class, args);
     }
 }
