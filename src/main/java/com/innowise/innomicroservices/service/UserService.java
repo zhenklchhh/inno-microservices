@@ -1,6 +1,7 @@
 package com.innowise.innomicroservices.service;
 
 import com.innowise.innomicroservices.dto.UserDto;
+import com.innowise.innomicroservices.exception.EmailAlreadyExistException;
 import com.innowise.innomicroservices.exception.UserNotFoundException;
 import com.innowise.innomicroservices.mapper.UserMapper;
 import com.innowise.innomicroservices.model.User;
@@ -16,6 +17,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @author Evgeniy Zaleshchenok
@@ -36,6 +39,9 @@ public class UserService {
     @Transactional
     @CachePut(value = "users", key = "#result.id")
     public UserDto createUser(UserDto createUserRequestDto) {
+        if (userRepository.findByEmail(createUserRequestDto.getEmail()).isPresent()) {
+            throw new EmailAlreadyExistException("User with email " + createUserRequestDto.getEmail() + " already exists.");
+        }
         User user = userMapper.toEntity(createUserRequestDto);
         User savedUser = userRepository.save(user);
         return userMapper.toResponseDto(savedUser);
@@ -44,7 +50,6 @@ public class UserService {
     @Transactional(readOnly = true)
     @Cacheable(value = "users", key = "#id")
     public UserDto getUserById(Long id) {
-        System.out.println("Fetching user: " + id);
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("User not found with id: " + id));
         return userMapper.toResponseDto(user);
@@ -74,6 +79,15 @@ public class UserService {
         }
         if (!idsToFetchFromDb.isEmpty()) {
             List<User> fetchedUserDTOS = userRepository.findUsersByIds(idsToFetchFromDb);
+            if (idsToFetchFromDb.size() > fetchedUserDTOS.size()) {
+                Set<Long> foundIds = fetchedUserDTOS.stream()
+                        .map(User::getId)
+                        .collect(Collectors.toSet());
+                List<Long> missingids = idsToFetchFromDb.stream()
+                        .filter(id -> !foundIds.contains(id))
+                        .toList();
+                throw new UserNotFoundException("User not found with ids " + missingids);
+            }
             for (User user : fetchedUserDTOS){
                 UserDto userDto = userMapper.toResponseDto(user);
                 result.add(userDto);
@@ -114,7 +128,7 @@ public class UserService {
     @CacheEvict(value = "users", key = "#id")
     public void deleteUser(Long id) {
         if (!userRepository.existsById(id)) {
-            throw new RuntimeException("User not found with id: " + id);
+            throw new UserNotFoundException("User not found with id: " + id);
         }
         userRepository.deleteById(id);
     }
