@@ -1,7 +1,7 @@
 package com.innowise.userservice.controller;
 
 import com.innowise.userservice.model.UserDto;
-import com.innowise.userservice.service.UserService;
+import com.innowise.userservice.service.implementation.UserServiceImpl;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -16,10 +16,10 @@ import java.util.List;
 @RestController
 @RequestMapping("/users")
 public class UserController {
-    private final UserService userService;
+    private final UserServiceImpl userService;
 
     @Autowired
-    public UserController(UserService userService) {
+    public UserController(UserServiceImpl userService) {
         this.userService = userService;
     }
 
@@ -41,13 +41,13 @@ public class UserController {
         return ResponseEntity.ok(userResponseDto);
     }
 
-    @GetMapping("/batch")
+    @GetMapping(params = "ids")
     public ResponseEntity<List<UserDto>> getUsersById(@RequestParam List<Long> ids) {
         List<UserDto> users = userService.getUsersByIds(ids);
         return ResponseEntity.ok(users);
     }
 
-    @GetMapping("/search")
+    @GetMapping(params = "email")
     public ResponseEntity<UserDto> getUserByEmail(@RequestParam String email) {
         UserDto userResponseDto = userService.getUserByEmail(email);
         return ResponseEntity.ok(userResponseDto);

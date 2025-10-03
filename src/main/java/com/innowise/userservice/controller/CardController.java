@@ -1,7 +1,7 @@
 package com.innowise.userservice.controller;
 
 import com.innowise.userservice.model.CardDto;
-import com.innowise.userservice.service.CardService;
+import com.innowise.userservice.service.implementation.CardServiceImpl;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -16,10 +16,10 @@ import java.util.List;
 @RestController
 @RequestMapping("/cards")
 public class CardController {
-    private final CardService cardService;
+    private final CardServiceImpl cardService;
 
     @Autowired
-    public CardController(CardService cardService) {
+    public CardController(CardServiceImpl cardService) {
         this.cardService = cardService;
     }
 
@@ -41,7 +41,7 @@ public class CardController {
         return ResponseEntity.ok(cardResponseDto);
     }
 
-    @GetMapping("/batch")
+    @GetMapping(params = "ids")
     public ResponseEntity<List<CardDto>> getAllCards(@RequestParam List<Long> ids) {
         List<CardDto> cardResponseDtos = cardService.getCardsByIds(ids);
         return ResponseEntity.ok(cardResponseDtos);

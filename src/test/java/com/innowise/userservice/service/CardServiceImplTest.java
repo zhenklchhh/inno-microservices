@@ -8,6 +8,7 @@ import com.innowise.userservice.model.entity.Card;
 import com.innowise.userservice.model.entity.User;
 import com.innowise.userservice.repository.CardRepository;
 import com.innowise.userservice.repository.UserRepository;
+import com.innowise.userservice.service.implementation.CardServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,7 +27,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
-class CardServiceTest {
+class CardServiceImplTest {
 
     @Mock
     private CardRepository cardRepository;
@@ -40,7 +41,7 @@ class CardServiceTest {
     private Cache cardsCache;
 
     @InjectMocks
-    private CardService cardService;
+    private CardServiceImpl cardService;
 
     private User user;
     private Card card;

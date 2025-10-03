@@ -1,121 +1,69 @@
 package com.innowise.userservice.service;
 
 import com.innowise.userservice.model.CardDto;
-import com.innowise.userservice.exception.CardNotFoundException;
-import com.innowise.userservice.exception.UserNotFoundException;
-import com.innowise.userservice.mapper.CardMapper;
-import com.innowise.userservice.model.entity.Card;
-import com.innowise.userservice.model.entity.User;
-import com.innowise.userservice.repository.CardRepository;
-import com.innowise.userservice.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.Cache;
-import org.springframework.cache.CacheManager;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.CachePut;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * Service interface for managing user cards.
+ * <p>
+ * This interface defines the standard operations for managing bank cards,
+ * including creation, retrieval, updates, and deletion.
+ * </p>
  * @author Evgeniy Zaleshchenok
  */
-@Service
-public class CardService {
-    private final CardRepository cardRepository;
-    private final CardMapper cardMapper;
-    private final UserRepository userRepository;
-    private final CacheManager cacheManager;
+public interface CardService {
 
-    @Autowired
-    public CardService(CardRepository cardRepository, CardMapper cardMapper, UserRepository userRepository, CacheManager cacheManager) {
-        this.cardRepository = cardRepository;
-        this.cardMapper = cardMapper;
-        this.userRepository = userRepository;
-        this.cacheManager = cacheManager;
-    }
+    /**
+     * Creates a new card and associates it with a user.
+     *
+     * @param createCardRequestDto DTO containing card details and the ID of the user who owns the card.
+     * @return DTO of the newly created card.
+     * @throws com.innowise.userservice.exception.UserNotFoundException if the user specified in the DTO does not exist.
+     */
+    CardDto createCard(CardDto createCardRequestDto);
 
-    @Transactional
-    @CachePut(value = "cards", key="#result.id")
-    public CardDto createCard(CardDto createCardRequestDto) {
-        User user = userRepository.findById(createCardRequestDto.getUserId())
-                .orElseThrow(() -> new UserNotFoundException("User with id " + createCardRequestDto.getUserId() + " not found"));
-        Card card = cardMapper.toEntity(createCardRequestDto);
-        card.setUser(user);
-        Card savedCard = cardRepository.save(card);
-        return cardMapper.toResponseDto(savedCard);
-    }
+    /**
+     * Retrieves a card by its unique ID.
+     *
+     * @param cardId The unique identifier of the card.
+     * @return DTO of the found card.
+     * @throws com.innowise.userservice.exception.CardNotFoundException if no card is found with the given ID.
+     */
+    CardDto getCard(Long cardId);
 
-    @Transactional(readOnly = true)
-    @Cacheable(value = "cards", key = "#cardId")
-    public CardDto getCard(Long cardId) {
-        Card card = cardRepository.findById(cardId)
-                .orElseThrow(() -> new CardNotFoundException("Card not found with id " + cardId));
-        return cardMapper.toResponseDto(card);
-    }
+    /**
+     * Retrieves a list of all cards in the system.
+     *
+     * @return A list containing DTOs of all cards. Returns an empty list if none exist.
+     */
+    List<CardDto> getAllCards();
 
-    @Transactional
-    public List<CardDto> getAllCards() {
-        List<Card> cards = cardRepository.findAll();
-        return cards.stream()
-                .map(cardMapper::toResponseDto)
-                .toList();
-    }
+    /**
+     * Retrieves multiple cards by their IDs.
+     * <p>
+     * The method attempts to fetch cards from the cache first before querying the database for any missing ones.
+     * </p>
+     *
+     * @param cardIds A list of card IDs to retrieve.
+     * @return A list of DTOs for the found cards.
+     */
+    List<CardDto> getCardsByIds(List<Long> cardIds);
 
-    @Transactional(readOnly = true)
-    public List<CardDto> getCardsByIds(List<Long> cardIds) {
-        Cache cardsCache = cacheManager.getCache("cards");
-        List<CardDto> result = new ArrayList<>();
-        List<Long> idsToFetch = new ArrayList<>();
-        for (Long cardId : cardIds) {
-            CardDto cardDto = cardsCache.get(cardId, CardDto.class);
-            if (cardDto == null) {
-                idsToFetch.add(cardId);
-            }
-            else{
-                result.add(cardDto);
-            }
-        }
+    /**
+     * Updates an existing card's information.
+     *
+     * @param cardId The ID of the card to update.
+     * @param updateCardRequestDto DTO containing the fields to update. Null fields are ignored.
+     * @return DTO of the updated card.
+     * @throws com.innowise.userservice.exception.CardNotFoundException if no card is found with the given ID.
+     */
+    CardDto updateCard(Long cardId, CardDto updateCardRequestDto);
 
-        if(!idsToFetch.isEmpty()) {
-            List<Card> cardList = cardRepository.findCardsByIds(idsToFetch);
-            for (Card card : cardList) {
-                CardDto cardDto = cardMapper.toResponseDto(card);
-                cardsCache.put(card.getId(), cardDto);
-                result.add(cardDto);
-            }
-        }
-        return result;
-    }
-
-    @Transactional
-    @CachePut(value = "cards", key = "#cardId")
-    public CardDto updateCard(Long cardId, CardDto updateCardRequestDto) {
-        Card cardToUpdate = cardRepository.findById(cardId)
-                .orElseThrow(() -> new CardNotFoundException("Card not found with id " + cardId));
-
-        if (updateCardRequestDto.getCardNumber() != null) {
-            cardToUpdate.setCardNumber(updateCardRequestDto.getCardNumber());
-        }
-        if (updateCardRequestDto.getExpiryDate() != null) {
-            cardToUpdate.setExpiryDate(updateCardRequestDto.getExpiryDate());
-        }
-        if (updateCardRequestDto.getHolder() != null) {
-            cardToUpdate.setHolder(updateCardRequestDto.getHolder());
-        }
-        cardRepository.save(cardToUpdate);
-        return cardMapper.toResponseDto(cardToUpdate);
-    }
-
-    @Transactional
-    @CacheEvict(value = "cards", key = "#cardId")
-    public void deleteCard(Long cardId) {
-        if (!cardRepository.existsById(cardId)) {
-            throw new CardNotFoundException("Card not found with id " + cardId);
-        }
-        cardRepository.deleteById(cardId);
-    }
+    /**
+     * Deletes a card by its ID.
+     *
+     * @param cardId The ID of the card to delete.
+     * @throws com.innowise.userservice.exception.CardNotFoundException if no card is found with the given ID.
+     */
+    void deleteCard(Long cardId);
 }

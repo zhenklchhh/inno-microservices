@@ -14,6 +14,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
+import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -50,12 +51,17 @@ class UserControllerTest {
 
     @Container
     static PostgreSQLContainer<?> provider = new PostgreSQLContainer<>("postgres:13-alpine");
+    @Container
+    static GenericContainer<?> redis = new GenericContainer<>("redis:6-alpine")
+            .withExposedPorts(6379);
 
     @DynamicPropertySource
     static void properties(DynamicPropertyRegistry registry) {
         registry.add("spring.datasource.url", provider::getJdbcUrl);
         registry.add("spring.datasource.username", provider::getUsername);
         registry.add("spring.datasource.password", provider::getPassword);
+        registry.add("spring.data.redis.host", redis::getHost);
+        registry.add("spring.data.redis.port", () -> redis.getMappedPort(6379).toString());
     }
 
     @Test
@@ -136,7 +142,7 @@ class UserControllerTest {
         User user2 = userRepository.save(new User("User2", "Test", LocalDate.now(), "user2@test.com"));
 
         mockMvc.perform(
-                        get("/users/batch")
+                        get("/users")
                                 .param("ids", String.valueOf(user1.getId()), String.valueOf(user2.getId()))
                 )
                 .andExpect(status().isOk()) // А теперь проверяем ответ
@@ -147,7 +153,7 @@ class UserControllerTest {
     void getUserByEmail_whenUserExists_returnsUser() throws Exception {
         User user = userRepository.save(new User("EmailUser", "Test", LocalDate.now(), "search@test.com"));
 
-        mockMvc.perform(get("/users/search")
+        mockMvc.perform(get("/users")
                         .param("email", "search@test.com"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(user.getId()));
@@ -155,7 +161,7 @@ class UserControllerTest {
 
     @Test
     void getUserByEmail_whenUserNotFound_returnsNotFound() throws Exception {
-        mockMvc.perform(get("/users/search")
+        mockMvc.perform(get("/users")
                         .param("email", "notfound@test.com"))
                 .andExpect(status().isNotFound());
     }

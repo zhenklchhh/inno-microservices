@@ -1,135 +1,85 @@
 package com.innowise.userservice.service;
 
 import com.innowise.userservice.model.UserDto;
-import com.innowise.userservice.exception.EmailAlreadyExistException;
-import com.innowise.userservice.exception.UserNotFoundException;
-import com.innowise.userservice.mapper.UserMapper;
-import com.innowise.userservice.model.entity.User;
-import com.innowise.userservice.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.Cache;
-import org.springframework.cache.CacheManager;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.CachePut;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
+ * Service interface for managing users.
+ * <p>
+ * Defines the contract for user-related operations such as creation, retrieval,
+ * updating, and deletion. Implementations of this interface will contain the
+ * business logic for these operations.
+ * </p>
  * @author Evgeniy Zaleshchenok
  */
-@Service
-public class UserService {
-    private final UserRepository userRepository;
-    private final UserMapper userMapper;
-    private final CacheManager cacheManager;
+public interface UserService {
 
-    @Autowired
-    public UserService(UserRepository userRepository, UserMapper userMapper, CacheManager cacheManager) {
-        this.userRepository = userRepository;
-        this.userMapper = userMapper;
-        this.cacheManager = cacheManager;
-    }
+    /**
+     * Creates a new user.
+     * <p>
+     * The method checks if a user with the given email already exists.
+     * If not, it saves the new user to the database.
+     * </p>
+     *
+     * @param createUserRequestDto DTO containing the details of the user to be created. Must not be null.
+     * @return DTO of the newly created user, including their generated ID.
+     * @throws com.innowise.userservice.exception.EmailAlreadyExistException if a user with the specified email already exists.
+     */
+    UserDto createUser(UserDto createUserRequestDto);
 
-    @Transactional
-    @CachePut(value = "users", key = "#result.id")
-    public UserDto createUser(UserDto createUserRequestDto) {
-        if (userRepository.findByEmail(createUserRequestDto.getEmail()).isPresent()) {
-            throw new EmailAlreadyExistException("User with email " + createUserRequestDto.getEmail() + " already exists.");
-        }
-        User user = userMapper.toEntity(createUserRequestDto);
-        User savedUser = userRepository.save(user);
-        return userMapper.toResponseDto(savedUser);
-    }
+    /**
+     * Retrieves a user by their unique ID.
+     *
+     * @param id The unique identifier of the user. Must not be null.
+     * @return DTO of the found user.
+     * @throws com.innowise.userservice.exception.UserNotFoundException if no user is found with the given ID.
+     */
+    UserDto getUserById(Long id);
 
-    @Transactional(readOnly = true)
-    @Cacheable(value = "users", key = "#id")
-    public UserDto getUserById(Long id) {
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new UserNotFoundException("User not found with id: " + id));
-        return userMapper.toResponseDto(user);
-    }
+    /**
+     * Retrieves a list of all users.
+     *
+     * @return A list of DTOs for all users in the system. Returns an empty list if no users exist.
+     */
+    List<UserDto> getAllUsers();
 
-    @Transactional
-    public List<UserDto> getAllUsers() {
-        List<User> users = userRepository.findAll();
-        return users.stream()
-                .map(userMapper::toResponseDto)
-                .toList();
-    }
+    /**
+     * Retrieves a list of users based on a collection of IDs.
+     * <p>
+     * This method efficiently fetches multiple users at once.
+     * It checks both the cache and the database.
+     * </p>
+     *
+     * @param ids A list of user IDs to retrieve. Must not be null.
+     * @return A list of DTOs for the found users. The size may be less than the input list if some users were not found.
+     * @throws com.innowise.userservice.exception.UserNotFoundException if any of the requested IDs do not correspond to an existing user.
+     */
+    List<UserDto> getUsersByIds(List<Long> ids);
 
-    @Transactional(readOnly = true)
-    public List<UserDto> getUsersByIds(List<Long> ids) {
-        Cache usersCache = cacheManager.getCache("users");
-        List<UserDto> result = new ArrayList<>();
-        List<Long> idsToFetchFromDb = new ArrayList<>();
-        for(Long id : ids) {
-            UserDto userDto = usersCache.get(id, UserDto.class);
-            if (userDto == null) {
-                idsToFetchFromDb.add(id);
-            }
-            else {
-                result.add(userDto);
-            }
-        }
-        if (!idsToFetchFromDb.isEmpty()) {
-            List<User> fetchedUserDTOS = userRepository.findUsersByIds(idsToFetchFromDb);
-            if (idsToFetchFromDb.size() > fetchedUserDTOS.size()) {
-                Set<Long> foundIds = fetchedUserDTOS.stream()
-                        .map(User::getId)
-                        .collect(Collectors.toSet());
-                List<Long> missingids = idsToFetchFromDb.stream()
-                        .filter(id -> !foundIds.contains(id))
-                        .toList();
-                throw new UserNotFoundException("User not found with ids " + missingids);
-            }
-            for (User user : fetchedUserDTOS){
-                UserDto userDto = userMapper.toResponseDto(user);
-                result.add(userDto);
-                usersCache.put(user.getId(), userDto);
-            }
-        }
-        return result;
-    }
+    /**
+     * Retrieves a user by their email address.
+     *
+     * @param email The email address to search for. Must not be null or empty.
+     * @return DTO of the found user.
+     * @throws com.innowise.userservice.exception.UserNotFoundException if no user is found with the given email.
+     */
+    UserDto getUserByEmail(String email);
 
-    @Transactional(readOnly = true)
-    @Cacheable(value = "users", key = "#email")
-    public UserDto getUserByEmail(String email) {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UserNotFoundException("User not found with email: " + email));
-        return userMapper.toResponseDto(user);
-    }
+    /**
+     * Updates an existing user's information.
+     *
+     * @param id The ID of the user to update.
+     * @param updateUserRequestDto DTO containing the new details for the user. Fields that are null will be ignored.
+     * @return DTO of the updated user.
+     * @throws com.innowise.userservice.exception.UserNotFoundException if no user is found with the given ID.
+     */
+    UserDto updateUser(Long id, UserDto updateUserRequestDto);
 
-    @Transactional
-    @CachePut(value = "users", key = "#id")
-    public UserDto updateUser(Long id, UserDto updateUserRequestDto) {
-        User userToUpdate = userRepository.findById(id)
-                .orElseThrow(() -> new UserNotFoundException("User not found with id: " + id));
-
-        if (updateUserRequestDto.getName() != null) {
-            userToUpdate.setName(updateUserRequestDto.getName());
-        }
-        if (updateUserRequestDto.getSurname() != null) {
-            userToUpdate.setSurname(updateUserRequestDto.getSurname());
-        }
-        if (updateUserRequestDto.getEmail() != null) {
-            userToUpdate.setEmail(updateUserRequestDto.getEmail());
-        }
-        userRepository.save(userToUpdate);
-        return userMapper.toResponseDto(userToUpdate);
-    }
-
-    @Transactional
-    @CacheEvict(value = "users", key = "#id")
-    public void deleteUser(Long id) {
-        if (!userRepository.existsById(id)) {
-            throw new UserNotFoundException("User not found with id: " + id);
-        }
-        userRepository.deleteById(id);
-    }
+    /**
+     * Deletes a user by their ID.
+     *
+     * @param id The ID of the user to delete.
+     * @throws com.innowise.userservice.exception.UserNotFoundException if no user is found with the given ID.
+     */
+    void deleteUser(Long id);
 }

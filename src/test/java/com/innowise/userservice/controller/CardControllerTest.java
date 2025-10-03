@@ -16,6 +16,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
+import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -52,12 +53,18 @@ class CardControllerTest {
 
     @Container
     static PostgreSQLContainer<?> database = new PostgreSQLContainer<>("postgres:13-alpine");
+    @Container
+    static GenericContainer<?> redis = new GenericContainer<>("redis:6-alpine")
+            .withExposedPorts(6379);
+
 
     @DynamicPropertySource
     static void configureProperties(DynamicPropertyRegistry registry) {
         registry.add("spring.datasource.url", database::getJdbcUrl);
         registry.add("spring.datasource.username", database::getUsername);
         registry.add("spring.datasource.password", database::getPassword);
+        registry.add("spring.data.redis.host", redis::getHost);
+        registry.add("spring.data.redis.port", () -> redis.getMappedPort(6379).toString());
     }
 
     @BeforeEach
@@ -145,7 +152,7 @@ class CardControllerTest {
         Card card1 = cardRepository.save(new Card(testUser, "1111", "Holder", LocalDate.now()));
         Card card2 = cardRepository.save(new Card(testUser, "2222", "Holder", LocalDate.now()));
 
-        mockMvc.perform(get("/cards/batch")
+        mockMvc.perform(get("/cards")
                         .param("ids", String.valueOf(card1.getId()), String.valueOf(card2.getId())))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(2)));
