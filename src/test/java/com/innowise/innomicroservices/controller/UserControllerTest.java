@@ -1,8 +1,8 @@
 package com.innowise.innomicroservices.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.innowise.innomicroservices.dto.UserDto;
-import com.innowise.innomicroservices.model.User;
+import com.innowise.innomicroservices.model.UserDto;
+import com.innowise.innomicroservices.model.entity.User;
 import com.innowise.innomicroservices.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

@@ -1,10 +1,10 @@
 package com.innowise.innomicroservices.service;
 
-import com.innowise.innomicroservices.dto.UserDto;
+import com.innowise.innomicroservices.model.UserDto;
 import com.innowise.innomicroservices.exception.EmailAlreadyExistException;
 import com.innowise.innomicroservices.exception.UserNotFoundException;
 import com.innowise.innomicroservices.mapper.UserMapper;
-import com.innowise.innomicroservices.model.User;
+import com.innowise.innomicroservices.model.entity.User;
 import com.innowise.innomicroservices.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

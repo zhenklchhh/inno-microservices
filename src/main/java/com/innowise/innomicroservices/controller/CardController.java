@@ -1,6 +1,6 @@
 package com.innowise.innomicroservices.controller;
 
-import com.innowise.innomicroservices.dto.CardDto;
+import com.innowise.innomicroservices.model.CardDto;
 import com.innowise.innomicroservices.service.CardService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;

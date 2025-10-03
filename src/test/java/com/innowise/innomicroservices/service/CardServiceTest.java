@@ -1,11 +1,11 @@
 package com.innowise.innomicroservices.service;
 
-import com.innowise.innomicroservices.dto.CardDto;
+import com.innowise.innomicroservices.model.CardDto;
 import com.innowise.innomicroservices.exception.CardNotFoundException;
 import com.innowise.innomicroservices.exception.UserNotFoundException;
 import com.innowise.innomicroservices.mapper.CardMapper;
-import com.innowise.innomicroservices.model.Card;
-import com.innowise.innomicroservices.model.User;
+import com.innowise.innomicroservices.model.entity.Card;
+import com.innowise.innomicroservices.model.entity.User;
 import com.innowise.innomicroservices.repository.CardRepository;
 import com.innowise.innomicroservices.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;

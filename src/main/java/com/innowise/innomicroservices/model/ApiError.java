@@ -1,4 +1,4 @@
-package com.innowise.innomicroservices.dto;
+package com.innowise.innomicroservices.model;
 
 import java.time.LocalDateTime;
 

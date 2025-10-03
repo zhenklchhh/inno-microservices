@@ -1,7 +1,7 @@
 package com.innowise.innomicroservices.mapper;
 
-import com.innowise.innomicroservices.dto.UserDto;
-import com.innowise.innomicroservices.model.User;
+import com.innowise.innomicroservices.model.UserDto;
+import com.innowise.innomicroservices.model.entity.User;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 

@@ -1,9 +1,9 @@
 package com.innowise.innomicroservices.mapper;
 
-import com.innowise.innomicroservices.dto.CardDto;
+import com.innowise.innomicroservices.model.CardDto;
 import com.innowise.innomicroservices.exception.UserNotFoundException;
-import com.innowise.innomicroservices.model.Card;
-import com.innowise.innomicroservices.model.User;
+import com.innowise.innomicroservices.model.entity.Card;
+import com.innowise.innomicroservices.model.entity.User;
 import com.innowise.innomicroservices.repository.UserRepository;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

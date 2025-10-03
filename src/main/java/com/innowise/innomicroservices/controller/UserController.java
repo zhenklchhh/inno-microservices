@@ -1,6 +1,6 @@
 package com.innowise.innomicroservices.controller;
 
-import com.innowise.innomicroservices.dto.UserDto;
+import com.innowise.innomicroservices.model.UserDto;
 import com.innowise.innomicroservices.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;

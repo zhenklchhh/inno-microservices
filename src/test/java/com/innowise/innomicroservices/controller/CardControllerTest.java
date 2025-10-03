@@ -1,9 +1,9 @@
 package com.innowise.innomicroservices.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.innowise.innomicroservices.dto.CardDto;
-import com.innowise.innomicroservices.model.Card;
-import com.innowise.innomicroservices.model.User;
+import com.innowise.innomicroservices.model.CardDto;
+import com.innowise.innomicroservices.model.entity.Card;
+import com.innowise.innomicroservices.model.entity.User;
 import com.innowise.innomicroservices.repository.CardRepository;
 import com.innowise.innomicroservices.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;

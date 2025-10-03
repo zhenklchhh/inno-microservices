@@ -1,6 +1,6 @@
 package com.innowise.innomicroservices.controller;
 
-import com.innowise.innomicroservices.dto.ApiError;
+import com.innowise.innomicroservices.model.ApiError;
 import com.innowise.innomicroservices.exception.CardNotFoundException;
 import com.innowise.innomicroservices.exception.EmailAlreadyExistException;
 import com.innowise.innomicroservices.exception.UserNotFoundException;
