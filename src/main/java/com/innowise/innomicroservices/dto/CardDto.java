@@ -4,7 +4,9 @@ import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
@@ -14,7 +16,11 @@ import java.time.LocalDate;
  */
 @Getter
 @Setter
-public class CardDTO {
+@AllArgsConstructor
+@NoArgsConstructor
+public class CardDto {
+    private Long id;
+
     @NotNull(message = "User id cannot be empty")
     private Long userId;
 
@@ -27,5 +33,5 @@ public class CardDTO {
 
     @NotNull(message = "Expiry date cannot be empty")
     @Future(message = "Expiry date must be in the future")
-    LocalDate expiryDate;
+    private LocalDate expiryDate;
 }

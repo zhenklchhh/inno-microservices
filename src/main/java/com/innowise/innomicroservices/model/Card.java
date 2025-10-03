@@ -20,7 +20,9 @@ public class Card {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="user_id")
     private User user;
+    @Column(name="number")
     private String cardNumber;
     private String holder;
+    @Column(name="expiration_date")
     private LocalDate expiryDate;
 }
