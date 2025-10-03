@@ -1,11 +1,12 @@
 package com.innowise.innomicroservices.service;
 
-import com.innowise.innomicroservices.dto.UserDTO;
+import com.innowise.innomicroservices.dto.UserDto;
 import com.innowise.innomicroservices.exception.UserNotFoundException;
 import com.innowise.innomicroservices.mapper.UserMapper;
 import com.innowise.innomicroservices.model.User;
 import com.innowise.innomicroservices.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
@@ -13,6 +14,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -32,7 +34,8 @@ public class UserService {
     }
 
     @Transactional
-    public UserDTO createUser(UserDTO createUserRequestDto) {
+    @CachePut(value = "users", key = "#result.id")
+    public UserDto createUser(UserDto createUserRequestDto) {
         User user = userMapper.toEntity(createUserRequestDto);
         User savedUser = userRepository.save(user);
         return userMapper.toResponseDto(savedUser);
@@ -40,14 +43,15 @@ public class UserService {
 
     @Transactional(readOnly = true)
     @Cacheable(value = "users", key = "#id")
-    public UserDTO getUserById(Long id) {
+    public UserDto getUserById(Long id) {
+        System.out.println("Fetching user: " + id);
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("User not found with id: " + id));
         return userMapper.toResponseDto(user);
     }
 
     @Transactional
-    public List<UserDTO> getAllUsers() {
+    public List<UserDto> getAllUsers() {
         List<User> users = userRepository.findAll();
         return users.stream()
                 .map(userMapper::toResponseDto)
@@ -55,15 +59,33 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public List<UserDTO> getUsersByIds(List<Long> ids) {
-        return userRepository.findUsersByIds(ids).stream()
-                .map(userMapper::toResponseDto)
-                .toList();
+    public List<UserDto> getUsersByIds(List<Long> ids) {
+        Cache usersCache = cacheManager.getCache("users");
+        List<UserDto> result = new ArrayList<>();
+        List<Long> idsToFetchFromDb = new ArrayList<>();
+        for(Long id : ids) {
+            UserDto userDto = usersCache.get(id, UserDto.class);
+            if (userDto == null) {
+                idsToFetchFromDb.add(id);
+            }
+            else {
+                result.add(userDto);
+            }
+        }
+        if (!idsToFetchFromDb.isEmpty()) {
+            List<User> fetchedUserDTOS = userRepository.findUsersByIds(idsToFetchFromDb);
+            for (User user : fetchedUserDTOS){
+                UserDto userDto = userMapper.toResponseDto(user);
+                result.add(userDto);
+                usersCache.put(user.getId(), userDto);
+            }
+        }
+        return result;
     }
 
     @Transactional(readOnly = true)
     @Cacheable(value = "users", key = "#email")
-    public UserDTO getUserByEmail(String email) {
+    public UserDto getUserByEmail(String email) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UserNotFoundException("User not found with email: " + email));
         return userMapper.toResponseDto(user);
@@ -71,7 +93,7 @@ public class UserService {
 
     @Transactional
     @CachePut(value = "users", key = "#id")
-    public UserDTO updateUser(Long id, UserDTO updateUserRequestDto) {
+    public UserDto updateUser(Long id, UserDto updateUserRequestDto) {
         User userToUpdate = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("User not found with id: " + id));
 
@@ -83,9 +105,6 @@ public class UserService {
         }
         if (updateUserRequestDto.getEmail() != null) {
             userToUpdate.setEmail(updateUserRequestDto.getEmail());
-        }
-        if (updateUserRequestDto.getBirthDate() != null) {
-            userToUpdate.setBirthDate(updateUserRequestDto.getBirthDate());
         }
         userRepository.save(userToUpdate);
         return userMapper.toResponseDto(userToUpdate);
