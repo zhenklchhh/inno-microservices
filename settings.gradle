@@ -1,1 +1,5 @@
-rootProject.name = 'userservice'
+rootProject.name="inno-microservices"
+
+include 'userservice'
+include 'authservice'
+
