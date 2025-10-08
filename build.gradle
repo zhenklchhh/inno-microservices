@@ -1,71 +1,10 @@
 plugins {
     id 'java'
-    id 'org.springframework.boot' version '3.5.6'
-    id 'io.spring.dependency-management' version '1.1.7'
-    id 'jacoco'
+    id 'org.springframework.boot' version '3.5.6' apply false
+    id 'io.spring.dependency-management' version '1.1.7' apply false
 }
 
-group = 'com.innowise'
-version = '0.0.1-SNAPSHOT'
-description = 'inno-microservices'
-
-java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(21)
-    }
+allprojects {
+    group = 'com.innowise'
 }
 
-repositories {
-    mavenCentral()
-}
-
-jacoco {
-    toolVersion = "0.8.9"
-}
-
-jacocoTestReport {
-    reports {
-        xml.required = true
-        html.required = true
-    }
-}
-
-jacocoTestCoverageVerification {
-    violationRules {
-        rule {
-            limit {
-                minimum = 0.5
-            }
-        }
-    }
-}
-
-
-dependencies {
-    implementation 'org.springframework.boot:spring-boot-starter'
-    implementation 'org.liquibase:liquibase-core'
-    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-    runtimeOnly 'org.postgresql:postgresql'
-    implementation 'org.springframework.boot:spring-boot-starter-web'
-    implementation 'org.springframework.boot:spring-boot-starter-validation'
-    compileOnly 'org.projectlombok:lombok'
-    annotationProcessor 'org.projectlombok:lombok'
-    implementation 'org.mapstruct:mapstruct:1.5.5.Final'
-    annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.5.Final'
-    implementation 'org.springframework.boot:spring-boot-starter-cache'
-    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
-    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.20.0")
-    // https://mvnrepository.com/artifact/org.testcontainers/testcontainers
-    testImplementation("org.testcontainers:testcontainers:1.21.3")
-    // https://mvnrepository.com/artifact/org.testcontainers/junit-jupiter
-    testImplementation("org.testcontainers:junit-jupiter:1.21.3")
-    // https://mvnrepository.com/artifact/org.testcontainers/postgresql
-    testImplementation("org.testcontainers:postgresql:1.21.3")
-}
-
-tasks.named('test') {
-    useJUnitPlatform()
-    finalizedBy jacocoTestReport
-}
