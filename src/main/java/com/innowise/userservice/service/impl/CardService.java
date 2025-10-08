@@ -1,4 +1,4 @@
-package com.innowise.userservice.service.implementation;
+package com.innowise.userservice.service.impl;
 
 import com.innowise.userservice.model.CardDto;
 import com.innowise.userservice.exception.CardNotFoundException;
@@ -8,7 +8,6 @@ import com.innowise.userservice.model.entity.Card;
 import com.innowise.userservice.model.entity.User;
 import com.innowise.userservice.repository.CardRepository;
 import com.innowise.userservice.repository.UserRepository;
-import com.innowise.userservice.service.CardService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
@@ -25,14 +24,14 @@ import java.util.List;
  * @author Evgeniy Zaleshchenok
  */
 @Service
-public class CardServiceImpl implements CardService {
+public class CardService implements com.innowise.userservice.service.CardService {
     private final CardRepository cardRepository;
     private final CardMapper cardMapper;
     private final UserRepository userRepository;
     private final CacheManager cacheManager;
 
     @Autowired
-    public CardServiceImpl(CardRepository cardRepository, CardMapper cardMapper, UserRepository userRepository, CacheManager cacheManager) {
+    public CardService(CardRepository cardRepository, CardMapper cardMapper, UserRepository userRepository, CacheManager cacheManager) {
         this.cardRepository = cardRepository;
         this.cardMapper = cardMapper;
         this.userRepository = userRepository;

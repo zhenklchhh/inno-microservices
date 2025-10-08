@@ -1,4 +1,4 @@
-    package com.innowise.userservice.service.implementation;
+    package com.innowise.userservice.service.impl;
 
     import com.innowise.userservice.model.UserDto;
     import com.innowise.userservice.exception.EmailAlreadyExistException;
@@ -6,7 +6,6 @@
     import com.innowise.userservice.mapper.UserMapper;
     import com.innowise.userservice.model.entity.User;
     import com.innowise.userservice.repository.UserRepository;
-    import com.innowise.userservice.service.UserService;
     import org.springframework.beans.factory.annotation.Autowired;
     import org.springframework.cache.Cache;
     import org.springframework.cache.CacheManager;
@@ -25,13 +24,13 @@
      * @author Evgeniy Zaleshchenok
      */
     @Service
-    public class UserServiceImpl implements UserService {
+    public class UserService implements com.innowise.userservice.service.UserService {
         private final UserRepository userRepository;
         private final UserMapper userMapper;
         private final CacheManager cacheManager;
 
         @Autowired
-        public UserServiceImpl(UserRepository userRepository, UserMapper userMapper, CacheManager cacheManager) {
+        public UserService(UserRepository userRepository, UserMapper userMapper, CacheManager cacheManager) {
             this.userRepository = userRepository;
             this.userMapper = userMapper;
             this.cacheManager = cacheManager;

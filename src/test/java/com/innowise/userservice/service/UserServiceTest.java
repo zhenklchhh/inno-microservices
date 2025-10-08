@@ -6,7 +6,7 @@ import com.innowise.userservice.exception.UserNotFoundException;
 import com.innowise.userservice.mapper.UserMapper;
 import com.innowise.userservice.model.entity.User;
 import com.innowise.userservice.repository.UserRepository;
-import com.innowise.userservice.service.implementation.UserServiceImpl;
+import com.innowise.userservice.service.impl.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -29,7 +29,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Evgeniy Zaleshchenok
  */
 @ExtendWith(MockitoExtension.class)
-class UserServiceImplTest {
+class UserServiceTest {
 
     private Long userId;
 
@@ -50,7 +50,7 @@ class UserServiceImplTest {
     private UserMapper userMapper;
 
     @InjectMocks
-    private UserServiceImpl userService;
+    private UserService userService;
 
     @BeforeEach
     void setUp() {

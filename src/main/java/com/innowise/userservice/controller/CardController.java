@@ -1,7 +1,7 @@
 package com.innowise.userservice.controller;
 
 import com.innowise.userservice.model.CardDto;
-import com.innowise.userservice.service.implementation.CardServiceImpl;
+import com.innowise.userservice.service.impl.CardService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -16,10 +16,10 @@ import java.util.List;
 @RestController
 @RequestMapping("/cards")
 public class CardController {
-    private final CardServiceImpl cardService;
+    private final CardService cardService;
 
     @Autowired
-    public CardController(CardServiceImpl cardService) {
+    public CardController(CardService cardService) {
         this.cardService = cardService;
     }
 

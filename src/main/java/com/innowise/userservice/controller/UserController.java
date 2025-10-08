@@ -1,7 +1,7 @@
 package com.innowise.userservice.controller;
 
 import com.innowise.userservice.model.UserDto;
-import com.innowise.userservice.service.implementation.UserServiceImpl;
+import com.innowise.userservice.service.impl.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -16,10 +16,10 @@ import java.util.List;
 @RestController
 @RequestMapping("/users")
 public class UserController {
-    private final UserServiceImpl userService;
+    private final UserService userService;
 
     @Autowired
-    public UserController(UserServiceImpl userService) {
+    public UserController(UserService userService) {
         this.userService = userService;
     }
 
