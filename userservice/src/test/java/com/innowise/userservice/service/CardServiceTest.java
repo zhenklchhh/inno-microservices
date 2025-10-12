@@ -8,7 +8,7 @@ import com.innowise.userservice.model.entity.Card;
 import com.innowise.userservice.model.entity.User;
 import com.innowise.userservice.repository.CardRepository;
 import com.innowise.userservice.repository.UserRepository;
-import com.innowise.userservice.service.impl.CardService;
+import com.innowise.userservice.service.impl.CardServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -41,7 +41,7 @@ class CardServiceTest {
     private Cache cardsCache;
 
     @InjectMocks
-    private CardService cardService;
+    private CardServiceImpl cardService;
 
     private User user;
     private Card card;

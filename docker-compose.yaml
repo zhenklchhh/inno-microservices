@@ -8,6 +8,7 @@ services:
     depends_on:
       - postgres-db
       - redis
+      - authservice
     ports:
       - "8080:8080"
     environment:
@@ -15,11 +16,24 @@ services:
       - SPRING_DATASOURCE_USERNAME=${DB_USER:-user}
       - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD:-password}
       - SPRING_REDIS_HOST=redis
+      - AUTH_SERVICE_URL=http://authservice:8080
+    env_file:
+      - ./userservice/.env
 
   authservice:
     build:
       context: ./authservice
     container_name: authservice-app
+    depends_on:
+      - postgres-db
+    ports:
+      - "8081:8080"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-db:5432/auth-db
+      - SPRING_DATASOURCE_USERNAME=${DB_USER:-user}
+      - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD:-password}
+    env_file:
+      - ./authservice/.env
 
   postgres-db:
     image: postgres:14-alpine
@@ -32,6 +46,7 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./postgres-init:/docker-entrypoint-initdb.d
 
   redis:
     image: redis:latest

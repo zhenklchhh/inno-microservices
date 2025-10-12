@@ -23,15 +23,8 @@ public class User {
     private long id;
     private String name;
     private String surname;
-    private LocalDate birthDate;
     private String email;
+    private LocalDate birthDate;
     @OneToMany(mappedBy="user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Card> cards = new ArrayList<>();
-
-    public User(String name, String surname, LocalDate birthDate, String email) {
-        this.name = name;
-        this.surname = surname;
-        this.birthDate = birthDate;
-        this.email = email;
-    }
 }

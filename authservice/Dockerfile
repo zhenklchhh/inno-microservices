@@ -1,4 +1,18 @@
-FROM ubuntu:latest
-LABEL authors="zhenya"
+FROM openjdk:21-jdk-bullseye AS build
+WORKDIR /app
 
-ENTRYPOINT ["top", "-b"]
+COPY gradlew .
+COPY gradle ./gradle
+COPY settings.gradle .
+COPY build.gradle .
+
+RUN chmod +x ./gradlew
+
+COPY src ./src
+RUN ./gradlew bootJar --no-daemon
+
+FROM eclipse-temurin:21-jre-alpine
+WORKDIR /app
+COPY --from=build /app/build/libs/*.jar app.jar
+EXPOSE 8080
+ENTRYPOINT ["java", "-jar", "app.jar"]

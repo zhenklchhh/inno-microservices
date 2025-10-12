@@ -9,11 +9,9 @@ import lombok.*;
  */
 @Table()
 @Entity(name="accounts")
-@Setter
-@Getter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode()
 public class Account {
     @Id
     private Long id;
@@ -26,5 +24,5 @@ public class Account {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private UserRole role;
+    private UserRole userRole;
 }

@@ -1,6 +1,7 @@
 package com.innowise.authservice.service.impl;
 
-import com.innowise.authservice.exception.UserAlreadyExistsException;
+import com.innowise.authservice.exception.AccountAlreadyExistsException;
+import com.innowise.authservice.exception.AccountNotFoundException;
 import com.innowise.authservice.mapper.AccountMapper;
 import com.innowise.authservice.model.AccountDto;
 import com.innowise.authservice.model.entity.Account;
@@ -26,19 +27,22 @@ public class AccountServiceImpl implements AccountService {
         this.accountMapper = accountMapper;
     }
 
+
+    @Override
+    public AccountDto findAccountByLogin(String login) {
+        Account account = accountRepository.findByLogin(login)
+                .orElseThrow(() -> new AccountNotFoundException(login));
+        return accountMapper.toAccountDto(account);
+    }
+
     @Override
     public AccountDto createAccount(AccountDto accountDto) {
         if (accountRepository.existsByLogin(accountDto.login())){
-            throw new UserAlreadyExistsException("User already exists with login: " + accountDto.login());
+            throw new AccountNotFoundException(accountDto.login());
         }
         Account account = accountMapper.toEntity(accountDto);
         account.setPassword(passwordEncoder.encode(accountDto.password()));
         accountRepository.save(account);
         return accountDto;
-    }
-
-    @Override
-    public AccountDto findAccountByLogin(String login) {
-        return null;
     }
 }
