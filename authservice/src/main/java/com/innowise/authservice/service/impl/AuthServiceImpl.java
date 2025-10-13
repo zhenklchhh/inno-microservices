@@ -1,20 +1,17 @@
 package com.innowise.authservice.service.impl;
 
 import com.auth0.jwt.exceptions.JWTVerificationException;
-import com.innowise.authservice.exception.AccountNotFoundException;
 import com.innowise.authservice.exception.InvalidJwtAuthenticationException;
 import com.innowise.authservice.mapper.AccountMapper;
 import com.innowise.authservice.model.JwtResponseDto;
 import com.innowise.authservice.model.LoginRequestDto;
 import com.innowise.authservice.model.entity.Account;
-import com.innowise.authservice.repository.AccountRepository;
 import com.innowise.authservice.security.JwtTokenProvider;
 import com.innowise.authservice.service.AccountService;
 import com.innowise.authservice.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 /**

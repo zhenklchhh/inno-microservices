@@ -31,14 +31,14 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public AccountDto findAccountByLogin(String login) {
         Account account = accountRepository.findByLogin(login)
-                .orElseThrow(() -> new AccountNotFoundException(login));
+                .orElseThrow(() -> new AccountNotFoundException("Account not found with login: " + login));
         return accountMapper.toAccountDto(account);
     }
 
     @Override
     public AccountDto createAccount(AccountDto accountDto) {
         if (accountRepository.existsByLogin(accountDto.login())){
-            throw new AccountNotFoundException(accountDto.login());
+            throw new AccountAlreadyExistsException("Account with login "  + accountDto.login() + "already exists");
         }
         Account account = accountMapper.toEntity(accountDto);
         account.setPassword(passwordEncoder.encode(accountDto.password()));

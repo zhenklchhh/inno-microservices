@@ -43,7 +43,7 @@ public class CardServiceImpl implements CardService {
     @CachePut(value = "cards", key="#result.id")
     public CardDto createCard(CardDto createCardRequestDto) {
         User user = userRepository.findById(createCardRequestDto.getUserId())
-                .orElseThrow(() -> new UserNotFoundException("User with id " + createCardRequestDto.getUserId() + " not found"));
+                .orElseThrow(() -> new UserNotFoundException(createCardRequestDto.getUserId()));
         Card card = cardMapper.toEntity(createCardRequestDto);
         card.setUser(user);
         Card savedCard = cardRepository.save(card);
@@ -54,7 +54,7 @@ public class CardServiceImpl implements CardService {
     @Cacheable(value = "cards", key = "#cardId")
     public CardDto getCard(Long cardId) {
         Card card = cardRepository.findById(cardId)
-                .orElseThrow(() -> new CardNotFoundException("Card not found with id " + cardId));
+                .orElseThrow(() -> new CardNotFoundException(cardId));
         return cardMapper.toResponseDto(card);
     }
 
@@ -96,7 +96,7 @@ public class CardServiceImpl implements CardService {
     @CachePut(value = "cards", key = "#cardId")
     public CardDto updateCard(Long cardId, CardDto updateCardRequestDto) {
         Card cardToUpdate = cardRepository.findById(cardId)
-                .orElseThrow(() -> new CardNotFoundException("Card not found with id " + cardId));
+                .orElseThrow(() -> new CardNotFoundException(cardId));
 
         if (updateCardRequestDto.getCardNumber() != null) {
             cardToUpdate.setCardNumber(updateCardRequestDto.getCardNumber());
@@ -115,7 +115,7 @@ public class CardServiceImpl implements CardService {
     @CacheEvict(value = "cards", key = "#cardId")
     public void deleteCard(Long cardId) {
         if (!cardRepository.existsById(cardId)) {
-            throw new CardNotFoundException("Card not found with id " + cardId);
+            throw new CardNotFoundException(cardId);
         }
         cardRepository.deleteById(cardId);
     }

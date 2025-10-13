@@ -74,7 +74,7 @@ public class UserServiceImpl implements UserService {
     @Cacheable(value = "users", key = "#id")
     public UserDto getUserById(Long id) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new UserNotFoundException("User not found with id: " + id));
+                .orElseThrow(() -> new UserNotFoundException(id));
         return userMapper.toResponseDto(user);
     }
 
@@ -132,7 +132,7 @@ public class UserServiceImpl implements UserService {
     @CachePut(value = "users", key = "#id")
     public UserDto updateUser(Long id, UserDto updateUserRequestDto) {
         User userToUpdate = userRepository.findById(id)
-                .orElseThrow(() -> new UserNotFoundException("User not found with id: " + id));
+                .orElseThrow(() -> new UserNotFoundException(id));
 
         if (updateUserRequestDto.getName() != null) {
             userToUpdate.setName(updateUserRequestDto.getName());
@@ -151,7 +151,7 @@ public class UserServiceImpl implements UserService {
     @CacheEvict(value = "users", key = "#id")
     public void deleteUser(Long id) {
         if (!userRepository.existsById(id)) {
-            throw new UserNotFoundException("User not found with id: " + id);
+            throw new UserNotFoundException(id);
         }
         userRepository.deleteById(id);
     }
