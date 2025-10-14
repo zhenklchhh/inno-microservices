@@ -27,4 +27,11 @@ public class User {
     private LocalDate birthDate;
     @OneToMany(mappedBy="user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Card> cards = new ArrayList<>();
+
+    public User(String name, String surname, LocalDate birthDate, String email) {
+        this.name = name;
+        this.surname = surname;
+        this.email = email;
+        this.birthDate = birthDate;
+    }
 }

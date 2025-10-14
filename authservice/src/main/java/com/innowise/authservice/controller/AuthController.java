@@ -35,8 +35,8 @@ public class AuthController {
     }
 
     @PostMapping("/validate")
-    public ResponseEntity<String> validate() {
-        return ResponseEntity.ok("Token is valid");
+    public ResponseEntity<Void> validate() {
+        return ResponseEntity.ok().build();
     }
 
     @PostMapping("/register")

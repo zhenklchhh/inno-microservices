@@ -2,7 +2,9 @@ package com.innowise.authservice.model.entity;
 
 import com.innowise.authservice.enums.UserRole;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * @author Evgeniy Zaleshchenok
@@ -14,7 +16,7 @@ import lombok.*;
 @AllArgsConstructor
 public class Account {
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false, unique = true)
