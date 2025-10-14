@@ -20,17 +20,17 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
-    private AuthenticationManager authenticationManager;
-    private JwtTokenProvider jwtTokenProvider;
+    private final AuthenticationManager authenticationManager;
+    private final JwtTokenProvider jwtTokenProvider;
     private final AccountService accountService;
     private final AccountMapper accountMapper;
 
     @Override
     public JwtResponseDto login(LoginRequestDto loginRequest) {
         authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(loginRequest.username(), loginRequest.password())
+                new UsernamePasswordAuthenticationToken(loginRequest.login(), loginRequest.password())
         );
-        Account account = accountMapper.toEntity(accountService.findAccountByLogin(loginRequest.username()));
+        Account account = accountMapper.toEntity(accountService.findAccountByLogin(loginRequest.login()));
         String accessToken = jwtTokenProvider.generateAccessToken(account);
         String refreshToken = jwtTokenProvider.generateRefreshToken(account);
         return new JwtResponseDto(accessToken, refreshToken);

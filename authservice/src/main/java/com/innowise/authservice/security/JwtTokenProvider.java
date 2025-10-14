@@ -2,8 +2,15 @@ package com.innowise.authservice.security;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.interfaces.DecodedJWT;
 import com.innowise.authservice.model.entity.Account;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -27,7 +34,7 @@ public class JwtTokenProvider {
         Instant now = Instant.now();
         return JWT.create()
                 .withSubject(account.getLogin())
-                .withClaim("roles", List.of(account.getUserRole().name()))
+                .withClaim("roles", List.of("ROLE_" + account.getUserRole().name()))
                 .withIssuedAt(now)
                 .withExpiresAt(now.plus(accessTokenValidityInMinutes, ChronoUnit.MINUTES))
                 .sign(Algorithm.HMAC256(secretKey));
@@ -49,7 +56,21 @@ public class JwtTokenProvider {
                 .getSubject();
     }
 
-    public String getUsernameFromToken(String token) {
-        return JWT.decode(token).getClaim("sub").asString();
+    public String resolveToken(HttpServletRequest req) {
+        String bearerToken = req.getHeader("Authorization");
+        if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
+            return bearerToken.substring(7);
+        }
+        return null;
+    }
+
+    public Authentication getAuthentication(String token) {
+        DecodedJWT decodedJWT = JWT.require(Algorithm.HMAC256(secretKey)).build().verify(token);
+        String login = decodedJWT.getSubject();
+        List<String> roles = decodedJWT.getClaim("roles").asList(String.class);
+        List<SimpleGrantedAuthority> authorities = roles.stream()
+                .map(SimpleGrantedAuthority::new)
+                .toList();
+        return new UsernamePasswordAuthenticationToken(login, "", authorities);
     }
 }

@@ -10,6 +10,7 @@ import org.mapstruct.Mapping;
  */
 @Mapper(componentModel = "spring")
 public interface AccountMapper {
+    @Mapping(target = "id", ignore = true)
     @Mapping(target = "password", ignore = true)
     Account toEntity(AccountDto accountDto);
 

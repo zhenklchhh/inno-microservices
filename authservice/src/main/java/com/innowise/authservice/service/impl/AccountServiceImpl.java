@@ -7,7 +7,7 @@ import com.innowise.authservice.model.AccountDto;
 import com.innowise.authservice.model.entity.Account;
 import com.innowise.authservice.repository.AccountRepository;
 import com.innowise.authservice.service.AccountService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -15,18 +15,11 @@ import org.springframework.stereotype.Service;
  * @author Evgeniy Zaleshchenok
  */
 @Service
+@RequiredArgsConstructor
 public class AccountServiceImpl implements AccountService {
     private final AccountRepository accountRepository;
     private final PasswordEncoder passwordEncoder;
     private final AccountMapper accountMapper;
-
-    @Autowired
-    public AccountServiceImpl(AccountRepository accountRepository, PasswordEncoder passwordEncoder, AccountMapper accountMapper) {
-        this.accountRepository = accountRepository;
-        this.passwordEncoder = passwordEncoder;
-        this.accountMapper = accountMapper;
-    }
-
 
     @Override
     public AccountDto findAccountByLogin(String login) {
