@@ -8,6 +8,7 @@ import com.innowise.userservice.model.entity.Card;
 import com.innowise.userservice.model.entity.User;
 import com.innowise.userservice.repository.CardRepository;
 import com.innowise.userservice.repository.UserRepository;
+import com.innowise.userservice.service.CardService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
@@ -24,14 +25,14 @@ import java.util.List;
  * @author Evgeniy Zaleshchenok
  */
 @Service
-public class CardService implements com.innowise.userservice.service.CardService {
+public class CardServiceImpl implements CardService {
     private final CardRepository cardRepository;
     private final CardMapper cardMapper;
     private final UserRepository userRepository;
     private final CacheManager cacheManager;
 
     @Autowired
-    public CardService(CardRepository cardRepository, CardMapper cardMapper, UserRepository userRepository, CacheManager cacheManager) {
+    public CardServiceImpl(CardRepository cardRepository, CardMapper cardMapper, UserRepository userRepository, CacheManager cacheManager) {
         this.cardRepository = cardRepository;
         this.cardMapper = cardMapper;
         this.userRepository = userRepository;
@@ -42,7 +43,7 @@ public class CardService implements com.innowise.userservice.service.CardService
     @CachePut(value = "cards", key="#result.id")
     public CardDto createCard(CardDto createCardRequestDto) {
         User user = userRepository.findById(createCardRequestDto.getUserId())
-                .orElseThrow(() -> new UserNotFoundException("User with id " + createCardRequestDto.getUserId() + " not found"));
+                .orElseThrow(() -> new UserNotFoundException(createCardRequestDto.getUserId()));
         Card card = cardMapper.toEntity(createCardRequestDto);
         card.setUser(user);
         Card savedCard = cardRepository.save(card);
@@ -53,7 +54,7 @@ public class CardService implements com.innowise.userservice.service.CardService
     @Cacheable(value = "cards", key = "#cardId")
     public CardDto getCard(Long cardId) {
         Card card = cardRepository.findById(cardId)
-                .orElseThrow(() -> new CardNotFoundException("Card not found with id " + cardId));
+                .orElseThrow(() -> new CardNotFoundException(cardId));
         return cardMapper.toResponseDto(card);
     }
 
@@ -95,7 +96,7 @@ public class CardService implements com.innowise.userservice.service.CardService
     @CachePut(value = "cards", key = "#cardId")
     public CardDto updateCard(Long cardId, CardDto updateCardRequestDto) {
         Card cardToUpdate = cardRepository.findById(cardId)
-                .orElseThrow(() -> new CardNotFoundException("Card not found with id " + cardId));
+                .orElseThrow(() -> new CardNotFoundException(cardId));
 
         if (updateCardRequestDto.getCardNumber() != null) {
             cardToUpdate.setCardNumber(updateCardRequestDto.getCardNumber());
@@ -114,7 +115,7 @@ public class CardService implements com.innowise.userservice.service.CardService
     @CacheEvict(value = "cards", key = "#cardId")
     public void deleteCard(Long cardId) {
         if (!cardRepository.existsById(cardId)) {
-            throw new CardNotFoundException("Card not found with id " + cardId);
+            throw new CardNotFoundException(cardId);
         }
         cardRepository.deleteById(cardId);
     }
