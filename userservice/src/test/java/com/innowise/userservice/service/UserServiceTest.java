@@ -75,7 +75,7 @@ class UserServiceTest {
         Mockito.when(userRepository.save(userEntity)).thenReturn(userEntity);
         Mockito.when(userMapper.toResponseDto(userEntity)).thenReturn(userDto);
         Mockito.when(userMapper.toEntity(userDto)).thenReturn(userEntity);
-        UserDto result = userService.createUser(userDto);
+        UserDto result = userService.createUser(userDto, "213");
 
         assertNotNull(result);
         assertEquals(userDto.getId(), result.getId());
@@ -91,7 +91,7 @@ class UserServiceTest {
     @Test
     void createUser_withAlreadyExistEmail_returnsError() {
         Mockito.when(userRepository.findByEmail(userEntity.getEmail())).thenReturn(Optional.ofNullable(userEntity));
-        assertThrows(EmailAlreadyExistException.class, () -> userService.createUser(userDto));
+        assertThrows(EmailAlreadyExistException.class, () -> userService.createUser(userDto, "123"));
     }
 
     @Test

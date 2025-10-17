@@ -16,7 +16,7 @@ public record CreateUserRequestDto(
 
         @NotNull
         @Past
-        LocalDate birthdate,
+        LocalDate birthDate,
 
         @NotBlank
         @Email(message = "Invalid email format")

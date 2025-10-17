@@ -26,7 +26,7 @@ public interface UserService {
      * @return DTO of the newly created user, including their generated ID.
      * @throws com.innowise.userservice.exception.EmailAlreadyExistException if a user with the specified email already exists.
      */
-    UserDto createUser(CreateUserRequestDto createUserRequestDto);
+    UserDto createUser(CreateUserRequestDto createUserRequestDto, String token);
 
     /**
      * Retrieves a user by their unique ID.

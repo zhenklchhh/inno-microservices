@@ -32,7 +32,7 @@ public class JwtTokenProvider {
         Instant now = Instant.now();
         return JWT.create()
                 .withSubject(account.getLogin())
-                .withClaim("roles", List.of("ROLE_" + account.getUserRole().name()))
+                .withClaim("roles", List.of(account.getUserRole().name()))
                 .withIssuedAt(now)
                 .withExpiresAt(now.plus(accessTokenValidityInMinutes, ChronoUnit.MINUTES))
                 .sign(Algorithm.HMAC256(secretKey));
@@ -67,7 +67,7 @@ public class JwtTokenProvider {
         String login = decodedJWT.getSubject();
         List<String> roles = decodedJWT.getClaim("roles").asList(String.class);
         List<SimpleGrantedAuthority> authorities = roles.stream()
-                .map(SimpleGrantedAuthority::new)
+                .map(role -> new SimpleGrantedAuthority("ROLE_" + role))
                 .toList();
         return new UsernamePasswordAuthenticationToken(login, "", authorities);
     }

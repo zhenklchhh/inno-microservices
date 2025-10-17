@@ -1,16 +1,17 @@
 package com.innowise.userservice.security;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.JwtException;
-import io.jsonwebtoken.Jwts;
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.auth0.jwt.interfaces.DecodedJWT;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -22,20 +23,20 @@ public class JwtTokenProvider {
     private String secretKey;
 
     public Authentication getAuthentication(String token) {
-        Claims claims = Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody();
-        String login = claims.getSubject();
-        List<String> roles = (List<String>) claims.get("roles");
+        DecodedJWT jwt = JWT.require(Algorithm.HMAC256(secretKey)).build().verify(token);
+        String login = jwt.getSubject();
+        List<String> roles = jwt.getClaim("roles").asList(String.class);
         List<SimpleGrantedAuthority> authorities = roles.stream()
-                .map(SimpleGrantedAuthority::new)
+                .map(role -> new SimpleGrantedAuthority("ROLE_" + role))
                 .toList();
-        return new UsernamePasswordAuthenticationToken(login, "", authorities);
+        return new UsernamePasswordAuthenticationToken(login, null, authorities);
     }
 
     public boolean validateToken(String token) {
         try{
-            Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token);
+            JWT.require(Algorithm.HMAC256(secretKey)).build().verify(token);
             return true;
-        } catch(JwtException | IllegalArgumentException e) {
+        } catch(JWTVerificationException e) {
             return false;
         }
     }

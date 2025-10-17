@@ -1,0 +1,15 @@
+databaseChangeLog:
+  - changeSet:
+      id: 002-create-admin-account
+      author: zhenya
+      preConditions:
+        - onFail: MARK_RAN
+        - not:
+            - sqlCheck:
+                expectedResult: 1
+                sql: SELECT count(*) FROM accounts WHERE login = 'admin'
+      changes:
+       - sql:
+          sql: |
+            INSERT INTO accounts (login, password, role)
+            VALUES('admin', '$2a$12$yrxuYPEZCDAhVMDl63av9.t6CZJ9Xc1f4IhKugXmThxIpCwtqD17S', 'ADMIN')

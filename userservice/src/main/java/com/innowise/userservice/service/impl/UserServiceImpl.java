@@ -1,5 +1,6 @@
 package com.innowise.userservice.service.impl;
 
+import com.innowise.userservice.enums.UserRole;
 import com.innowise.userservice.model.AccountRegistrationRequestDto;
 import com.innowise.userservice.model.CreateUserRequestDto;
 import com.innowise.userservice.model.UserDto;
@@ -9,6 +10,7 @@ import com.innowise.userservice.mapper.UserMapper;
 import com.innowise.userservice.model.entity.User;
 import com.innowise.userservice.repository.UserRepository;
 import com.innowise.userservice.service.UserService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.Cache;
@@ -30,6 +32,7 @@ import java.util.stream.Collectors;
  * @author Evgeniy Zaleshchenok
  */
 @Service
+@Slf4j
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
@@ -48,22 +51,24 @@ public class UserServiceImpl implements UserService {
     }
     @Transactional
     @CachePut(value = "users", key = "#result.id")
-    public UserDto createUser(CreateUserRequestDto createUserRequestDto) {
+    public UserDto createUser(CreateUserRequestDto createUserRequestDto, String token) {
         if (userRepository.findByEmail(createUserRequestDto.email()).isPresent()) {
             throw new EmailAlreadyExistException("User with email " + createUserRequestDto.email() + " already exists.");
         }
         User user = userMapper.toEntityFromCreateRequest(createUserRequestDto);
+        log.info(String.valueOf(user.getBirthDate()));
         User savedUser = userRepository.save(user);
         AccountRegistrationRequestDto accountRegistrationRequestDto = new AccountRegistrationRequestDto(
                 savedUser.getId(),
                 savedUser.getEmail(),
                 createUserRequestDto.password(),
-                "USER"
+                UserRole.USER
         );
         WebClient webClient = webClientBuilder.baseUrl(authServiceUrl).build();
         webClient.post()
-                .uri("/account")
+                .uri("/auth/register")
                 .body(Mono.just(accountRegistrationRequestDto), AccountRegistrationRequestDto.class)
+                .header("Authorization", token)
                 .retrieve()
                 .toBodilessEntity()
                 .block();
