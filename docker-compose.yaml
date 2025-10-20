@@ -33,6 +33,24 @@ services:
     env_file:
       - ./authservice/.env
 
+  orderservice:
+    container_name: orderservice-app
+    build:
+      context: ./orderservice
+    depends_on:
+      - postgres-db
+      - userservice
+    ports:
+      - "8082:8080"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-db:5432/order-db
+      - SPRING_DATASOURCE_USERNAME=${DB_USER:-user}
+      - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD:-password}
+      - USER_SERVICE_URL=http://userservice:8080
+    env_file:
+      - ./orderservice/.env
+
+
   postgres-db:
     image: postgres:14-alpine
     container_name: postgres-db
