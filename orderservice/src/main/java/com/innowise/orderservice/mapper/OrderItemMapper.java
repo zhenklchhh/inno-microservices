@@ -8,7 +8,7 @@ import org.mapstruct.Mapper;
  * @author Evgeniy Zaleshchenok
  */
 @Mapper(componentModel = "spring")
-public interface OrderItemsMapper {
+public interface OrderItemMapper {
     OrderItem toEntity(OrderItemDto orderItemDto);
     OrderItemDto toDto(OrderItem orderItem);
 }

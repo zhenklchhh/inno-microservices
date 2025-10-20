@@ -1,6 +1,7 @@
 package com.innowise.orderservice.repository;
 
 import com.innowise.orderservice.model.entity.Order;
+import com.innowise.orderservice.model.entity.OrderStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -12,5 +13,5 @@ import java.util.List;
 @Repository
 public interface OrderRepository extends JpaRepository<Order, Long> {
     List<Order> findByIds(List<Long> orderIds);
-    List<Order> findByStatus(String status);
+    List<Order> findByStatusIn(List<OrderStatus> statuses);
 }
