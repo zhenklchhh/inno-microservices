@@ -7,9 +7,9 @@ COPY gradle ./gradle
 COPY build.gradle .
 COPY settings.gradle .
 
-RUN chmod +x ./gradlew
+RUN ./gradlew dependencies
 COPY src ./src
-RUN ./gradlew bootJar
+RUN ./gradlew bootJar --no-daemon
 
 FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
