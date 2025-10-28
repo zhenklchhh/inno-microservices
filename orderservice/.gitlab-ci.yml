@@ -1,0 +1,65 @@
+stages:
+  - test
+  - build
+  - dockerize
+
+before_script:
+  - echo "Starting CI/CD pipeline..."
+  - export GRADLE_USER_HOME=`pwd`/.gradle
+  - chmod +x ./gradlew
+
+cache:
+  key: "$CI_COMMIT_REF_SLUG"
+  paths:
+    - .gradle/wrapper
+    - .gradle/caches
+
+build:
+  stage: build
+  script:
+    - ./gradlew bootJar
+  artifacts:
+    paths:
+      - build/libs/*.jar
+    expire_in: 1 week
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "master"'
+
+test:
+  stage: test
+  script:
+    - ./gradlew check
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_COMMIT_BRANCH == "master"'
+
+build_docker_image:
+  stage: dockerize
+  image: docker:24.0.5
+  services:
+    - name: docker:24.0.5-dind
+      alias: dockerdaemon
+  
+  variables:
+    DOCKER_HOST: tcp://dockerdaemon:2375
+    DOCKER_TLS_CERTDIR: ""
+    IMAGE_TAG: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
+    IMAGE_LATEST: $CI_REGISTRY_IMAGE:latest
+
+  before_script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+
+  script:
+    - docker build -t $IMAGE_TAG .
+    - docker push $IMAGE_TAG
+    - |
+      if [ "$CI_COMMIT_BRANCH" == "master" ]; then
+        docker tag $IMAGE_TAG $IMAGE_LATEST
+        docker push $IMAGE_LATEST
+      fi
+
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "master"'
+
+after_script:
+  - echo "End of CI/CD pipeline."

@@ -1,0 +1,46 @@
+stages:
+  - build
+  - test
+  - docker-build
+
+default:
+  image: gradle:8.5.0-jdk21-alpine
+
+cache:
+  key: "$CI_COMMIT_REF_SLUG-orderservice"
+  paths:
+    - orderservice/.gradle/wrapper
+    - orderservice/.gradle/caches
+
+build-orderservice:
+  stage: build
+  script:
+    - cd orderservice
+    - ./gradlew assemble
+  artifacts:
+    paths:
+      - orderservice/build/
+    expire_in: 1 hour
+
+test-orderservice:
+  stage: test
+  dependencies:
+    - build-orderservice
+  script:
+    - cd orderservice
+    - ./gradlew test
+  artifacts:
+    reports:
+      junit: orderservice/build/test-results/test/*.xml
+
+docker-build-orderservice:
+  stage: docker-build
+  needs: [test-orderservice]
+  image: docker:20.10.16
+  services:
+    - docker:20.10.16-dind
+  before_script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+  script:
+    - docker build -t "$CI_REGISTRY_IMAGE/orderservice:$CI_COMMIT_SHORT_SHA" -f orderservice/Dockerfile .
+    - docker push "$CI_REGISTRY_IMAGE/orderservice:$CI_COMMIT_SHORT_SHA"

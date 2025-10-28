@@ -1,2 +1,3 @@
 CREATE DATABASE "auth-db";
 CREATE DATABASE "user-db";
+CREATE DATABASE "order-db";
