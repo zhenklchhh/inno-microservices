@@ -48,8 +48,6 @@ public class GlobalExceptionHandler {
                 validationErrors,
                 request.getRequestURI()
         );
-
-        // 3. Возвращаем ResponseEntity с правильным статусом
         return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
     }
 }

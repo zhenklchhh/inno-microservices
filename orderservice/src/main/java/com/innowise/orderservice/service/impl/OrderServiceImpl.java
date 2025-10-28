@@ -1,5 +1,6 @@
 package com.innowise.orderservice.service.impl;
 
+import com.innowise.orderservice.client.UserClient;
 import com.innowise.orderservice.exception.OrderNotFoundException;
 import com.innowise.orderservice.mapper.OrderItemMapper;
 import com.innowise.orderservice.mapper.OrderMapper;
@@ -17,7 +18,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.reactive.function.client.WebClient;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -30,7 +30,7 @@ import java.util.List;
 public class OrderServiceImpl implements OrderService {
     private final OrderRepository orderRepository;
     private final OrderMapper orderMapper;
-    private final WebClient.Builder webClientBuilder;
+    private final UserClient userClient;
     private final JwtTokenProvider jwtTokenProvider;
     private final OrderItemMapper orderItemMapper;
 
@@ -43,7 +43,7 @@ public class OrderServiceImpl implements OrderService {
         Order order = orderMapper.toEntity(orderDto);
         order.setStatus(OrderStatus.CREATED);
         order.setCreationDate(LocalDate.now());
-        Order savedOrder = orderRepository.save(orderMapper.toEntity(orderDto));
+        Order savedOrder = orderRepository.save(order);
         UserDto userDto = getUserData(token);
         return orderMapper.toResponseDto(savedOrder, userDto);
     }
@@ -112,15 +112,6 @@ public class OrderServiceImpl implements OrderService {
 
     private UserDto getUserData(String token){
         String email = jwtTokenProvider.getEmailFromToken(token);
-        WebClient webClient = webClientBuilder.baseUrl(userServiceUrl).build();
-        return webClient.get()
-                .uri(uriBuilder -> uriBuilder
-                        .path("/users")
-                        .queryParam("email", email)
-                        .build())
-                .header("Authorization", token)
-                .retrieve()
-                .bodyToMono(UserDto.class)
-                .block();
+        return userClient.getUserByEmail(email, token);
     }
 }
