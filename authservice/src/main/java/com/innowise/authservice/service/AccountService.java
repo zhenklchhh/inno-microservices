@@ -1,6 +1,7 @@
 package com.innowise.authservice.service;
 
 import com.innowise.authservice.model.AccountDto;
+import com.innowise.authservice.model.RegistrationRequestDto;
 
 /**
  * Service interface for managing user accounts.

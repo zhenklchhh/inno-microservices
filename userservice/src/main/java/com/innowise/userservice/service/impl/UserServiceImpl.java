@@ -37,41 +37,21 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
     private final CacheManager cacheManager;
-    private final WebClient.Builder webClientBuilder;
-
-    @Value("${auth-service.url}")
-    private String authServiceUrl;
-
     @Autowired
-    public UserServiceImpl(UserRepository userRepository, UserMapper userMapper, CacheManager cacheManager, WebClient.Builder webClientBuilder) {
+    public UserServiceImpl(UserRepository userRepository, UserMapper userMapper, CacheManager cacheManager) {
         this.userRepository = userRepository;
         this.userMapper = userMapper;
         this.cacheManager = cacheManager;
-        this.webClientBuilder = webClientBuilder;
     }
     @Transactional
     @CachePut(value = "users", key = "#result.id")
-    public UserDto createUser(CreateUserRequestDto createUserRequestDto, String token) {
+    public UserDto createUser(CreateUserRequestDto createUserRequestDto) {
         if (userRepository.findByEmail(createUserRequestDto.email()).isPresent()) {
             throw new EmailAlreadyExistException("User with email " + createUserRequestDto.email() + " already exists.");
         }
         User user = userMapper.toEntityFromCreateRequest(createUserRequestDto);
         log.info(String.valueOf(user.getBirthDate()));
         User savedUser = userRepository.save(user);
-        AccountRegistrationRequestDto accountRegistrationRequestDto = new AccountRegistrationRequestDto(
-                savedUser.getId(),
-                savedUser.getEmail(),
-                createUserRequestDto.password(),
-                UserRole.USER
-        );
-        WebClient webClient = webClientBuilder.baseUrl(authServiceUrl).build();
-        webClient.post()
-                .uri("/auth/register")
-                .body(Mono.just(accountRegistrationRequestDto), AccountRegistrationRequestDto.class)
-                .header("Authorization", token)
-                .retrieve()
-                .toBodilessEntity()
-                .block();
         return userMapper.toResponseDto(savedUser);
     }
 

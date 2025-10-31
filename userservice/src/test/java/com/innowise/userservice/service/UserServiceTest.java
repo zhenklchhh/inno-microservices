@@ -75,7 +75,7 @@ class UserServiceTest {
         Mockito.when(userRepository.save(userEntity)).thenReturn(userEntity);
         Mockito.when(userMapper.toResponseDto(userEntity)).thenReturn(userDto);
         Mockito.when(userMapper.toEntity(userDto)).thenReturn(userEntity);
-        UserDto result = userService.createUser(userDto, "213");
+        UserDto result = userService.createUser(userDto);
 
         assertNotNull(result);
         assertEquals(userDto.getId(), result.getId());

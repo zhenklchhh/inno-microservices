@@ -1,14 +1,12 @@
 services:
   userservice:
     build:
-      context: ./userservice
+      context: ../userservice
     container_name: userservice-app
     depends_on:
       - postgres-db
       - redis
       - authservice
-    ports:
-      - "8080:8080"
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-db:5432/user-db
       - SPRING_DATASOURCE_USERNAME=${DB_USER:-user}
@@ -16,40 +14,50 @@ services:
       - SPRING_REDIS_HOST=redis
       - AUTH_SERVICE_URL=http://authservice:8080
     env_file:
-      - ./userservice/.env
+      - ../userservice/.env
 
   authservice:
     build:
-      context: ./authservice
+      context: ../authservice
     container_name: authservice-app
     depends_on:
       - postgres-db
-    ports:
-      - "8081:8080"
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-db:5432/auth-db
       - SPRING_DATASOURCE_USERNAME=${DB_USER:-user}
       - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD:-password}
     env_file:
-      - ./authservice/.env
+      - ../authservice/.env
 
   orderservice:
     container_name: orderservice-app
     build:
-      context: ./orderservice
+      context: ../orderservice
     depends_on:
       - postgres-db
       - userservice
-    ports:
-      - "8082:8080"
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-db:5432/order-db
       - SPRING_DATASOURCE_USERNAME=${DB_USER:-user}
       - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD:-password}
       - USER_SERVICE_URL=http://userservice:8080
     env_file:
-      - ./orderservice/.env
+      - ../orderservice/.env
 
+  api-gateway:
+    container_name: api-gateway
+    build:
+      context: .
+    ports:
+      - "8080:8080"
+    depends_on:
+      - userservice
+      - orderservice
+      - authservice
+    environment:
+      - JWT_SECRET=${JWT_SECRET:-your-default-super-secret-key}
+    env_file:
+      - ./.env
 
   postgres-db:
     image: postgres:14-alpine
@@ -62,7 +70,7 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./postgres-init:/docker-entrypoint-initdb.d
+      - ../postgres-init:/docker-entrypoint-initdb.d
 
   redis:
     image: redis:latest

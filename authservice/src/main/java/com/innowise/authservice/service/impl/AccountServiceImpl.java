@@ -4,6 +4,7 @@ import com.innowise.authservice.exception.AccountAlreadyExistsException;
 import com.innowise.authservice.exception.AccountNotFoundException;
 import com.innowise.authservice.mapper.AccountMapper;
 import com.innowise.authservice.model.AccountDto;
+import com.innowise.authservice.model.RegistrationRequestDto;
 import com.innowise.authservice.model.entity.Account;
 import com.innowise.authservice.repository.AccountRepository;
 import com.innowise.authservice.service.AccountService;

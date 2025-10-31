@@ -1,5 +1,3 @@
 databaseChangeLog:
   - include:
       file: db/changelog/changeset/001-initial-schema-creation.yaml
-  - include:
-      file: db/changelog/changeset/002-add-initial-indexes.yaml

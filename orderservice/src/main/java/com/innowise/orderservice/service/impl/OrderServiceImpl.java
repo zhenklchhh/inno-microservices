@@ -67,7 +67,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public List<OrderResponseDto> getOrdersByIds(List<Long> orderIds, String token) {
-        List<Order> orders = orderRepository.findByIds(orderIds);
+        List<Order> orders = orderRepository.findByIdIn(orderIds);
         UserDto userDto = getUserData(token);
         return orders.stream()
                 .map(order -> orderMapper.toResponseDto(order, userDto))
