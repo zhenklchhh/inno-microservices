@@ -6,7 +6,9 @@ import com.innowise.authservice.model.RegistrationRequestDto;
 import com.innowise.authservice.model.UserDto;
 import com.innowise.authservice.service.AccountService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
@@ -19,9 +21,13 @@ public class RegistrationService {
     private final WebClient.Builder webClientBuilder;
     private final AccountService accountService;
 
-    private final String userServiceUrl = "http://userservice:8080";
+    private final String BEARER_STRING = "Bearer ";
 
-    public Mono<UserDto> registerUser(RegistrationRequestDto registrationRequestDto) {
+    @Value("${app.services.user-service.url}")
+    private String userServiceUrl;
+
+    public Mono<UserDto> registerUser(RegistrationRequestDto registrationRequestDto,
+                                      String authToken) {
         WebClient webClient = webClientBuilder.baseUrl(userServiceUrl).build();
         CreateUserRequestDto createUserRequestDto = new CreateUserRequestDto(
                 registrationRequestDto.email(),
@@ -36,25 +42,24 @@ public class RegistrationService {
                 .retrieve()
                 .bodyToMono(UserDto.class)
                 .flatMap(userResponse -> {
-                    try {
                         AccountDto accountDto = new AccountDto(
                                 userResponse.id(),
                                 registrationRequestDto.email(),
                                 registrationRequestDto.password(),
                                 registrationRequestDto.userRole()
                         );
-                        accountService.createAccount(accountDto);
-                        return Mono.empty(); // Успех
-                    } catch (Exception e) {
-                        return rollbackUserCreation(webClient, userResponse.id())
-                                .then(Mono.error(e));
-                    }
+                        return Mono.fromRunnable(() -> accountService.createAccount(accountDto))
+                                .thenReturn(userResponse)
+                                .onErrorResume(error -> rollbackUserCreation(webClient, userResponse.id(),
+                                        authToken)
+                                .then(Mono.error(error)));
                 });
     }
 
-    private Mono<Void> rollbackUserCreation(WebClient webClient, Long userId) {;
+    private Mono<Void> rollbackUserCreation(WebClient webClient, Long userId, String token) {
         return webClient.delete()
                 .uri("/users/" + userId)
+                .header("Authorization", BEARER_STRING + token)
                 .retrieve()
                 .bodyToMono(Void.class);
     }

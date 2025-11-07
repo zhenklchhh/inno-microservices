@@ -14,15 +14,15 @@ public record RegistrationRequestDto(
         String email,
 
         @NotBlank
-        @Size(min = 2, max = 6)
+        @Size(min = 8, max = 128)
         String password,
 
         @NotBlank
-        @Size(min = 2, max = 6)
+        @Size(min = 3, max = 50)
         String name,
 
         @NotBlank
-        @Size(min = 2, max = 6)
+        @Size(min = 3, max = 50)
         String surname,
 
         @Past

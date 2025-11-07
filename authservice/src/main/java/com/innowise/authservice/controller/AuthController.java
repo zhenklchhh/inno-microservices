@@ -38,7 +38,8 @@ public class AuthController {
 
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
-    public Mono<UserDto> createAccount(@Valid @RequestBody RegistrationRequestDto registrationRequestDto) {
-        return registrationService.registerUser(registrationRequestDto);
+    public Mono<UserDto> createAccount(@Valid @RequestBody RegistrationRequestDto registrationRequestDto,
+                                       @RequestHeader("Authentification") String authToken) {
+        return registrationService.registerUser(registrationRequestDto, authToken);
     }
 }

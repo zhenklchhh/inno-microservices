@@ -1,18 +1,15 @@
 package com.innowise.userservice.service.impl;
 
-import com.innowise.userservice.enums.UserRole;
-import com.innowise.userservice.model.AccountRegistrationRequestDto;
-import com.innowise.userservice.model.CreateUserRequestDto;
-import com.innowise.userservice.model.UserDto;
 import com.innowise.userservice.exception.EmailAlreadyExistException;
 import com.innowise.userservice.exception.UserNotFoundException;
 import com.innowise.userservice.mapper.UserMapper;
+import com.innowise.userservice.model.CreateUserRequestDto;
+import com.innowise.userservice.model.UserDto;
 import com.innowise.userservice.model.entity.User;
 import com.innowise.userservice.repository.UserRepository;
 import com.innowise.userservice.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CacheEvict;
@@ -20,8 +17,6 @@ import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,7 +45,6 @@ public class UserServiceImpl implements UserService {
             throw new EmailAlreadyExistException("User with email " + createUserRequestDto.email() + " already exists.");
         }
         User user = userMapper.toEntityFromCreateRequest(createUserRequestDto);
-        log.info(String.valueOf(user.getBirthDate()));
         User savedUser = userRepository.save(user);
         return userMapper.toResponseDto(savedUser);
     }
