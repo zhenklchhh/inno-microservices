@@ -1,0 +1,40 @@
+spring:
+  application:
+    name: api-gateway
+  config:
+    import: optional:file:.env[.properties]
+  main:
+    allow-bean-definition-overriding: true
+
+  cloud:
+    gateway:
+      server:
+        webflux:
+          routes:
+            - id: auth-service
+              uri: http://authservice:8080
+              predicates:
+                - Path=/api/auth/**
+
+            - id: user-service
+              uri: http://userservice:8080
+              predicates:
+                - Path=/api/users/**
+
+            - id: order-service
+              uri: http://orderservice:8080
+              predicates:
+                - Path=/api/orders/**
+
+security:
+  jwt:
+    token:
+      secret-key: ${JWT_SECRET}
+    public-endpoints:
+      - /auth/login
+      - /auth/register
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"

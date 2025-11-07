@@ -1,18 +1,15 @@
 package com.innowise.authservice.controller;
 
-import com.innowise.authservice.model.AccountDto;
-import com.innowise.authservice.model.JwtResponseDto;
-import com.innowise.authservice.model.LoginRequestDto;
-import com.innowise.authservice.model.RefreshRequestDto;
+import com.innowise.authservice.model.*;
 import com.innowise.authservice.service.AccountService;
 import com.innowise.authservice.service.AuthService;
+import com.innowise.authservice.service.impl.RegistrationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Evgeniy Zaleshchenok
@@ -22,7 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class AuthController {
     private final AuthService authService;
-    private final AccountService accountService;
+    private final RegistrationService registrationService;
 
     @PostMapping("/login")
     public ResponseEntity<JwtResponseDto> login(@RequestBody @Valid LoginRequestDto loginRequestDto) {
@@ -40,8 +37,9 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<Void> createAccount(@Valid @RequestBody AccountDto accountDto) {
-        accountService.createAccount(accountDto);
-        return ResponseEntity.ok().build();
+    @ResponseStatus(HttpStatus.CREATED)
+    public Mono<UserDto> createAccount(@Valid @RequestBody RegistrationRequestDto registrationRequestDto,
+                                       @RequestHeader("Authentification") String authToken) {
+        return registrationService.registerUser(registrationRequestDto, authToken);
     }
 }
