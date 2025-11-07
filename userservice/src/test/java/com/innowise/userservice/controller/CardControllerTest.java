@@ -79,7 +79,7 @@ class CardControllerTest {
     void createCard_withValidData_returnsCreated() throws Exception {
         CardDto cardDto = new CardDto();
         cardDto.setUserId(testUser.getId());
-        cardDto.setCardNumber("1111-2222-3333-4444");
+        cardDto.setCardNumber("1111222233334444");
         cardDto.setHolder("Test User");
         cardDto.setExpiryDate(LocalDate.now().plusYears(1));
 
@@ -88,7 +88,7 @@ class CardControllerTest {
                         .content(objectMapper.writeValueAsString(cardDto)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").exists())
-                .andExpect(jsonPath("$.cardNumber").value("1111-2222-3333-4444"));
+                .andExpect(jsonPath("$.cardNumber").value("1111222233334444"));
     }
 
     @Test
@@ -109,7 +109,7 @@ class CardControllerTest {
     void createCard_whenUserNotFound_returnsNotFound() throws Exception {
         CardDto cardDto = new CardDto();
         cardDto.setUserId(999L);
-        cardDto.setCardNumber("1111-2222-3333-4444");
+        cardDto.setCardNumber("1111222233334444");
         cardDto.setHolder("Test User");
         cardDto.setExpiryDate(LocalDate.now().plusYears(1));
 

@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.validator.constraints.CreditCardNumber;
 
 import java.time.LocalDate;
 
@@ -26,6 +27,7 @@ public class CardDto {
 
     @NotBlank(message = "Card number cannot be empty")
     @Size(min = 16, max = 19, message = "Card number must be between 16 and 19 digits")
+    @CreditCardNumber(message = "Invalid card number")
     private String cardNumber;
 
     @NotBlank(message = "Card holder cannot be empty")
