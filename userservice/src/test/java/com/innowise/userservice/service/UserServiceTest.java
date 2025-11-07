@@ -1,5 +1,6 @@
 package com.innowise.userservice.service;
 
+import com.innowise.userservice.model.CreateUserRequestDto;
 import com.innowise.userservice.model.UserDto;
 import com.innowise.userservice.exception.EmailAlreadyExistException;
 import com.innowise.userservice.exception.UserNotFoundException;
@@ -37,6 +38,8 @@ class UserServiceTest {
 
     private UserDto userDto;
 
+    private CreateUserRequestDto createUserRequestDto;
+
     @Mock
     private UserRepository userRepository;
 
@@ -68,14 +71,22 @@ class UserServiceTest {
         userDto.setSurname("Doe");
         userDto.setEmail("john.doe@example.com");
         userDto.setBirthDate(LocalDate.parse("2005-04-03"));
+
+        createUserRequestDto = new CreateUserRequestDto(
+                "John",
+                "Doe",
+                LocalDate.parse("2005-04-03"),
+                "john.doe@example.com",
+                "123456"
+        );
     }
 
     @Test
     void createUser_withValidData_returnsUser() {
         Mockito.when(userRepository.save(userEntity)).thenReturn(userEntity);
         Mockito.when(userMapper.toResponseDto(userEntity)).thenReturn(userDto);
-        Mockito.when(userMapper.toEntity(userDto)).thenReturn(userEntity);
-        UserDto result = userService.createUser(userDto);
+        Mockito.when(userMapper.toEntityFromCreateRequest(createUserRequestDto)).thenReturn(userEntity);
+        UserDto result = userService.createUser(createUserRequestDto);
 
         assertNotNull(result);
         assertEquals(userDto.getId(), result.getId());
@@ -91,7 +102,7 @@ class UserServiceTest {
     @Test
     void createUser_withAlreadyExistEmail_returnsError() {
         Mockito.when(userRepository.findByEmail(userEntity.getEmail())).thenReturn(Optional.ofNullable(userEntity));
-        assertThrows(EmailAlreadyExistException.class, () -> userService.createUser(userDto, "123"));
+        assertThrows(EmailAlreadyExistException.class, () -> userService.createUser(createUserRequestDto));
     }
 
     @Test

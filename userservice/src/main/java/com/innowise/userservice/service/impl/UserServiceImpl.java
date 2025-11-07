@@ -32,12 +32,14 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
     private final CacheManager cacheManager;
+
     @Autowired
     public UserServiceImpl(UserRepository userRepository, UserMapper userMapper, CacheManager cacheManager) {
         this.userRepository = userRepository;
         this.userMapper = userMapper;
         this.cacheManager = cacheManager;
     }
+
     @Transactional
     @CachePut(value = "users", key = "#result.id")
     public UserDto createUser(CreateUserRequestDto createUserRequestDto) {
