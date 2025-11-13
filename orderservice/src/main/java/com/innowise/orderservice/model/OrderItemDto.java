@@ -8,9 +8,6 @@ import jakarta.validation.constraints.Positive;
  */
 public record OrderItemDto(
         @NotNull
-        Long orderId,
-
-        @NotNull
         Long itemId,
 
         @Positive

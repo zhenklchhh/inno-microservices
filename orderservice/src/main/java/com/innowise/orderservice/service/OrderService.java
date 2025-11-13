@@ -5,6 +5,7 @@ import com.innowise.orderservice.model.OrderDto;
 import com.innowise.orderservice.model.OrderResponseDto;
 import com.innowise.orderservice.model.OrderUpdateDto;
 import com.innowise.orderservice.model.entity.OrderStatus;
+import org.apache.coyote.BadRequestException;
 
 import java.util.List;
 
@@ -23,7 +24,7 @@ public interface OrderService {
      * @param token    The authorization token of the user creating the order, used to fetch user details.
      * @return An {@link OrderResponseDto} representing the newly created order, enriched with user information.
      */
-    OrderResponseDto createOrder(OrderDto orderDto, String token);
+    OrderResponseDto createOrder(OrderDto orderDto, String token) throws BadRequestException;
 
     /**
      * Retrieves a single order by its unique identifier.
@@ -33,7 +34,7 @@ public interface OrderService {
      * @return An {@link OrderResponseDto} for the found order.
      * @throws OrderNotFoundException if no order with the specified ID is found.
      */
-    OrderResponseDto getOrder(Long orderId, String token);
+    OrderResponseDto getOrder(Long orderId, String token) throws BadRequestException;
 
     /**
      * Retrieves a list of all orders.
@@ -41,7 +42,7 @@ public interface OrderService {
      * @param token The authorization token of the user.
      * @return A list of {@link OrderResponseDto} objects.
      */
-    List<OrderResponseDto> getAllOrders(String token);
+    List<OrderResponseDto> getAllOrders(String token) throws BadRequestException;
 
     /**
      * Retrieves a list of orders based on a list of their IDs.
@@ -50,7 +51,7 @@ public interface OrderService {
      * @param token    The authorization token of the user.
      * @return A list of {@link OrderResponseDto} objects matching the provided IDs.
      */
-    List<OrderResponseDto> getOrdersByIds(List<Long> orderIds, String token);
+    List<OrderResponseDto> getOrdersByIds(List<Long> orderIds, String token) throws BadRequestException;
 
     /**
      * Retrieves a list of orders filtered by one or more statuses.
@@ -59,7 +60,7 @@ public interface OrderService {
      * @param token    The authorization token of the user.
      * @return A list of {@link OrderResponseDto} objects that match any of the given statuses.
      */
-    List<OrderResponseDto> getOrdersByStatuses(List<OrderStatus> statuses, String token);
+    List<OrderResponseDto> getOrdersByStatuses(List<OrderStatus> statuses, String token) throws BadRequestException;
 
     /**
      * Partially updates an existing order.
@@ -71,7 +72,7 @@ public interface OrderService {
      * @return An {@link OrderResponseDto} representing the state of the order after the update.
      * @throws OrderNotFoundException if no order with the specified ID is found.
      */
-    OrderResponseDto updateOrder(Long id, OrderUpdateDto orderUpdateDto, String token);
+    OrderResponseDto updateOrder(Long id, OrderUpdateDto orderUpdateDto, String token) throws BadRequestException;
 
     /**
      * Deletes an order by its unique identifier.

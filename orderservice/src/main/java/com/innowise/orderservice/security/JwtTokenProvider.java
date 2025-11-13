@@ -1,13 +1,16 @@
 package com.innowise.orderservice.security;
 
 import com.auth0.jwt.JWT;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 /**
  * @author Evgeniy Zaleshchenok
  */
 @Component
-public class JwtTokenProvider {
+@Profile("!test")
+public class JwtTokenProvider implements TokenProvider {
+    @Override
     public String getEmailFromToken(String authHeader){
         String token = resolveToken(authHeader);
         return JWT.decode(token).getSubject();
