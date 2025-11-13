@@ -10,9 +10,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDate;
@@ -37,7 +37,7 @@ class OrderControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    @MockitoBean
+    @MockBean
     private OrderService orderService;
 
     private OrderDto orderDto;
@@ -47,14 +47,13 @@ class OrderControllerTest {
 
     @BeforeEach
     void setUp() {
-        testAuthHeader = "Bearer test.token";
+        testAuthHeader = "Bearer test.token.jwt";
 
         UserDto userDto = new UserDto();
         userDto.setId(1L);
         userDto.setEmail("test@example.com");
 
-        orderDto = new OrderDto(1L, Collections.emptyList());
-        OrderItemDto itemDto = new OrderItemDto(100L, 1L, 1);
+        OrderItemDto itemDto = new OrderItemDto(1L, 1);
         orderDto = new OrderDto(1L, List.of(itemDto));
 
         orderUpdateDto = new OrderUpdateDto();
@@ -65,6 +64,7 @@ class OrderControllerTest {
         orderResponseDto.setUser(userDto);
         orderResponseDto.setStatus(OrderStatus.CREATED.name());
         orderResponseDto.setCreationDate(LocalDate.now());
+        orderResponseDto.setOrderItems(List.of(itemDto));
     }
 
     @Test
@@ -160,7 +160,6 @@ class OrderControllerTest {
 
     @Test
     void getOrderById_whenOrderNotFound_shouldReturnNotFound() throws Exception {
-
         long nonExistentId = 99L;
         when(orderService.getOrder(nonExistentId, testAuthHeader))
                 .thenThrow(new OrderNotFoundException(nonExistentId));
